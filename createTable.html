@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Create Table</title>
+    <style>
+        td,
+        input.txtbox {
+            width: 150px;
+        }
+
+        td.chkbox {
+            width: 30px;
+        }
+    </style>
+    <script>
+        function fnGenerateTable() {
+            var tblData = document.getElementById("txtTableData").value;
+            var rows = tblData.split("\n");
+            var html = "<table border='1'>";
+            rows.forEach((row, index) => {
+                console.log(row);
+                if (row.trim() != "") {
+                    html += "<tr>";
+                    html += "<td class='chkbox'> <input type='checkbox'/> </td>";
+                    row.split("\t").forEach(cell => {
+                        if (index == 0) {
+                            html += "<th>" + cell + "</th>";
+                        }
+                        else {
+                            html += "<td>" + cell + "</td>";
+                        }
+                    });
+                    html += "</tr>"
+                }
+
+            });
+            html += "</table>";
+
+            document.getElementById("result").innerHTML = html;
+
+            fnAddRow();
+        }
+
+        function fnAddRow() {
+            var tbl = document.getElementById("result").querySelector("table");
+            var headerRow = tbl.childNodes[0].firstChild.cloneNode(true);
+            var newRow = tbl.childNodes[0].lastChild.cloneNode(true);
+
+            newRow.childNodes.forEach(function (cell, index) {
+                if (index != 0) {
+                    cell.innerHTML = "<input class='txtbox' placeholder='" + headerRow.childNodes[index].innerHTML + "'>";
+                }
+            });
+
+            newRow.innerHTML = newRow.innerHTML.replace(/<th>/g, "<td>")
+
+            tbl.childNodes[0].appendChild(newRow);
+        }
+
+        function fnSave() {
+            var tbl = document.getElementById("result").querySelector("table");
+            tbl.querySelectorAll("input.txtbox").forEach(function (txtbox) {
+                txtbox.parentNode.innerHTML = txtbox.value;
+            });
+        }
+
+        function fnEdit() {
+            var tbl = document.getElementById("result").querySelector("table");
+            var headerRow = tbl.childNodes[0].firstChild.cloneNode(true);
+
+            tbl.querySelectorAll("tr").forEach(function (row) {
+                var checked = row.querySelector("td.chkbox").querySelector("input").checked;
+                if (checked) {
+                    row.querySelectorAll("td").forEach(function (cell, index) {
+                        if (index != 0) {
+                            cell.innerHTML = "<input class='txtbox' value='" + cell.innerHTML + "' placeholder='" + headerRow.childNodes[index].innerHTML + "'>";
+                        }
+                    });
+                }
+            });
+        }
+
+        function fnDelete() {
+            var tbl = document.getElementById("result").querySelector("table");
+            if (tbl.querySelectorAll("tr")[0].querySelector("td.chkbox").querySelector("input").checked) {
+                tbl.innerHTML = "";
+                tbl.remove();
+            }
+            else {
+                tbl.querySelectorAll("tr").forEach(function (row, index) {
+                    var checked = row.querySelector("td.chkbox").querySelector("input").checked;
+                    if (checked) {
+                        row.innerHTML = "";
+                        row.remove();
+                    }
+                });
+            }
+
+        }
+    </script>
+</head>
+
+<body>
+    <textarea id="txtTableData" rows="10" cols="60"></textarea> <br />
+    <input type="button" value="Generate Table" onclick="fnGenerateTable()" />
+
+    <input type="button" value="add row" onclick="fnAddRow()" />
+    <input type="button" value="Save" onclick="fnSave()" />
+    <input type="button" value="Edit" onclick="fnEdit()" />
+    <input type="button" value="Delete" onclick="fnDelete()" />
+
+    <div id="result"></div>
+
+</body>
+
+</html>

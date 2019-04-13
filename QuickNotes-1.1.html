@@ -1,0 +1,232 @@
+<html>
+
+<head>
+    <title>Quick Notes</title>
+    <style>
+        .txtbox {
+            font-size: large;
+            border-radius: 5px;
+            width: 500px;
+            padding: 5px;
+        }
+
+        .button {
+            font-size: large;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .notes {
+            font-size: large;
+            cursor: pointer;
+        }
+
+        .note:hover {
+            color: rgb(255, 106, 0);
+        }
+
+        .note:active,
+        .selected {
+            /*color: rgb(230, 53, 28);*/
+            background-color: red;
+            color: white;
+        }
+
+        #overlay {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(128, 128, 128, 0.5);
+            position: fixed;
+            top: 0px;
+            left: 0px;
+        }
+
+        #dialog {
+            width: 50%;
+            height: 50%;
+            position: fixed;
+            left: 25%;
+            top: 25%;
+            background-color: gray;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #txtExport {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #txtmsg {
+            position: fixed;
+            top: 10%;
+            left: 25%;
+            color: black;
+            background-color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        /*#xClose{
+position: fixed;
+text-align: right;
+cursor: pointer;
+font-size: large;
+color: black;
+border-color: black;
+}*/
+    </style>
+</head>
+
+<body>
+    <div>
+        <input id="btnSave" type="button" class="button" value="Save" />
+        <input id="btnClear" type="button" class="button" value="Clear" />
+        <input id="btnRemove" type="button" class="button" value="Remove Selected" />
+        <input id="btnExport" type="button" class="button" value="Export" />
+        <input id="txtSearch" class="txtbox" placeholder="Search Notes" />
+    </div>
+    <div>
+        <ul id="lstNotes" class="notes"></ul>
+        <ul id="lstNotesSearch" class="notes hidden"></ul>
+    </div>
+    <div>
+        <textarea id="txtNote" rows="2" cols="20" class="txtbox" placeholder="Type Notes & Press Enter"></textarea>
+        <!--<input id="txtNote" type="text" class="txtbox" placeholder="Type Notes & Press Enter" />-->
+    </div>
+    <div id="overlay" class="hidden">
+        <span id="txtmsg">Text Copied to the Clipboard</span>
+        <div id="dialog">
+            <!--<div id="xClose">X</div>-->
+            <textarea id="txtExport"></textarea>
+        </div>
+    </div>
+    <script>
+        // Globals
+        var txtNote = document.getElementById('txtNote');
+        var lstNotes = document.getElementById('lstNotes');
+        var btnSave = document.getElementById('btnSave');
+        var btnClear = document.getElementById('btnClear');
+        var btnRemove = document.getElementById('btnRemove');
+        var btnExport = document.getElementById('btnExport');
+        var txtExport = document.getElementById('txtExport');
+        var txtSearch = document.getElementById('txtSearch');
+        var note;
+        var filtered = false;
+        var notesHtml;
+        loadNotes();
+        // Events
+        txtNote.addEventListener('keypress', (event) => {
+            //console.log(event.keyCode);
+            if (event.keyCode == 13) { // Enter Key
+                addNote(txtNote.value);
+                txtNote.value = '';
+            }
+        });
+        txtNote.addEventListener('keyup', (event) => {
+            //console.log(event.keyCode);
+            if (event.keyCode == 13) { // Enter Key
+                txtNote.value = '';
+            }
+        });
+        btnSave.addEventListener('click', () => {
+            saveNotes();
+        });
+        btnClear.addEventListener('click', () => {
+            lstNotes.innerHTML = '';
+            txtNote.value = '';
+        });
+        btnRemove.addEventListener('click', () => {
+            document.querySelectorAll("#lstNotes .selected").forEach((sel) => sel.remove());
+        });
+        btnExport.addEventListener('click', () => {
+            exportNotes();
+        });
+        document.querySelector('#overlay').addEventListener('mousedown', () => {
+            document.getElementById('overlay').classList.add('hidden');
+        });
+        document.querySelector('#overlay #txtExport').addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+        });
+        txtSearch.addEventListener('keyup', () => {
+            //console.log(txtSearch.value);
+            if (txtSearch.value.trim() == '') {
+                clearFilter();
+            }
+            else {
+                filterNotes(txtSearch.value);
+            }
+        });
+        // Functions
+        function addNote(noteText) {
+            if (noteText.trim() != '') {
+                noteText.split('\n').forEach(function (line) {
+                    if (line.trim() != '') {
+                        var noteItem = document.createElement('li');
+                        noteItem.innerText = line;
+                        noteItem.classList.add('note');
+                        noteItem.addEventListener('click', () => noteClick(noteItem));
+                        lstNotes.appendChild(noteItem)
+                    }
+                });
+                //saveNotes();
+                note = noteText;
+            }
+        }
+        function noteClick(noteItem) {
+            //console.log(noteItem);
+            if (noteItem.classList.contains('selected')) {
+                noteItem.classList.remove('selected');
+            }
+            else {
+                noteItem.classList.add('selected');
+            }
+        }
+        function saveNotes() {
+            var arrNotes = [];
+            lstNotes.querySelectorAll('li').forEach(function (item) {
+                arrNotes.push(item.innerText);
+            });
+            localStorage.setItem('quick_notes', JSON.stringify(arrNotes));
+        }
+        function loadNotes() {
+            var arrNotes = JSON.parse(localStorage.getItem('quick_notes'));
+            if (arrNotes != null) {
+                arrNotes.forEach(function (item) {
+                    addNote(item);
+                });
+            }
+        }
+        function exportNotes() {
+            //console.log('working..')
+            document.getElementById('overlay').classList.remove('hidden');
+            txtExport.value = '';
+            lstNotes.querySelectorAll('li').forEach(function (item) {
+                txtExport.value += item.innerText + '\n';
+            });
+            txtExport.select();
+            document.execCommand('copy');
+        }
+        function filterNotes(strSearch) {
+            document.getElementById('lstNotes').classList.add('hidden');
+            document.getElementById('lstNotesSearch').classList.remove('hidden');
+            var arr = document.querySelectorAll('#lstNotes .note');
+            var res = Array.from(arr).map((li) => li).filter((li) => li.textContent.toLocaleLowerCase().includes(strSearch.toLocaleLowerCase()))
+            document.getElementById('lstNotesSearch').innerHTML = '';
+            res.forEach((li) => {
+                document.getElementById('lstNotesSearch').appendChild(li.cloneNode(true));
+            });
+        }
+        function clearFilter() {
+            document.getElementById('lstNotes').classList.remove('hidden');
+            document.getElementById('lstNotesSearch').classList.add('hidden');
+            document.getElementById('lstNotesSearch').innerHTML = '';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,101 @@
+<html>
+
+<head>
+    <title>Quick Notes</title>
+    <style>
+        .txtbox {
+            font-size: large;
+            border-radius: 5px;
+            width: 500px;
+            padding: 5px;
+        }
+
+        .button {
+            font-size: large;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .notes {
+            font-size: large;
+        }
+
+        .note:hover {
+            color: rgb(255, 106, 0);
+            cursor: pointer;
+        }
+    </style>
+    　
+    　
+</head>
+
+<body>
+    <div>
+        <ul id="lstNotes" class="notes"></ul>
+    </div>
+    <div>
+        <input id="txtNote" type="text" class="txtbox" placeholder="Type Notes & Press Enter" />
+        <input id="btnClear" type="button" class="button" value="Clear" />
+    </div>
+
+    <script>
+        var txtNote = document.getElementById('txtNote');
+        var lstNotes = document.getElementById('lstNotes');
+        var btnClear = document.getElementById('btnClear');
+        loadNotes();
+        txtNote.addEventListener('keypress', (event) => {
+            //console.log(event.keyCode);
+            if (event.keyCode == 13) { // Enter Key
+                addNote(txtNote.value);
+                txtNote.value = '';
+            }
+        });
+
+        btnClear.addEventListener('click', () => {
+            lstNotes.innerHTML = '';
+            txtNote.value = '';
+            try{
+                localStorage.setItem('quick_notes',null);
+            }
+            catch(ex){}
+        });
+
+        function addNote(noteText) {
+            if (noteText.trim() != '') {
+                var noteItem = document.createElement('li');
+                noteItem.innerText = noteText;
+                noteItem.classList.add('note');
+                lstNotes.appendChild(noteItem)
+                saveNotes();
+            }
+        }
+        function saveNotes() {
+            try {
+                var arrNotes = [];
+                lstNotes.querySelectorAll('li').forEach(function (item) {
+                    arrNotes.push(item.innerText);
+                });
+                localStorage.setItem('quick_notes', JSON.stringify(arrNotes));
+            }
+            catch (ex) {
+                console.log(ex);
+            }
+
+        }
+        function loadNotes() {
+            try {
+                var arrNotes = JSON.parse(localStorage.getItem('quick_notes'));
+                if (arrNotes != null) {
+                    arrNotes.forEach(function (item) {
+                        addNote(item);
+                    });
+                }
+            }
+            catch (ex) {
+                console.log(ex);
+            }
+        }
+    </script>
+</body>
+
+</html>

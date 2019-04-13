@@ -1,0 +1,191 @@
+<html>
+
+<head>
+    <title>POS</title>
+    <style>
+        body {
+            background-color: lightskyblue;
+            user-select: none;
+        }
+
+        .txtbox {
+            font-size: large;
+            border-radius: 5px;
+            width: 500px;
+            padding: 5px;
+        }
+
+        .button {
+            font-size: large;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .item {
+            font-size: large;
+            cursor: pointer;
+        }
+
+        .selected {
+            font-weight: bold;
+            color: rgb(10, 17, 150);
+        }
+
+        .txtQuantity {
+            font-size: small;
+            border-radius: 4px;
+            width: 50px;
+            padding: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Fruit Shop - Billing</h2>
+    <div>
+        <table cellspacing="50">
+            <tr>
+                <td>
+                    <h3>Select Items to purchase</h3>
+                    <ol id="lstItems"></ol>
+                </td>
+                <td>
+                    <table id="tblSelectedItems" cellspacing="10" cellpadding="1">
+                        <tr>
+                            <th>SNo</th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Cost</th>
+                        </tr>
+                    </table>
+                    <table id="tblTotal" style="width:100%; border:solid; font-weight:bold">
+                        <tr style="text-align:right;">
+                            <td>Total</td>
+                            <td>
+                                <span id="totalCost">00.00</span> INR
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        let lstItems = document.getElementById('lstItems');
+        let tblSelectedItems = document.getElementById('tblSelectedItems');
+        let items = [
+            { name: "Apple", price: 60, unit: "KG", currency: "INR" },
+            { name: "Orange", price: 45, unit: "KG", currency: "INR" },
+            { name: "Grapes", price: 55, unit: "KG", currency: "INR" },
+            { name: "Strawberry", price: 70, unit: "KG", currency: "INR" },
+            { name: "Pomogranade", price: 50, unit: "KG", currency: "INR" }
+        ];
+        let selectedItems = [];
+        let props = ['name', 'price', 'unit', 'currency'];
+        loadItems();
+        function loadItems() {
+            items.forEach((item) => {
+                let li = document.createElement('li');
+                li.classList.add('item');
+                li.innerText = item.name + ' - ' + item.price + ' ' + item.currency + ' / ' + item.unit;
+                props.forEach((prop) => {
+                    li.setAttribute(prop, item[prop]);
+                });
+                li.addEventListener('click', (event) => { itemClick(li) });
+                lstItems.appendChild(li);
+            });
+        }
+        function itemClick(li) {
+            if (!li.classList.contains('selected')) {
+                addItemToList(li.cloneNode(true));
+                li.classList.add('selected');
+            }
+        }
+        function addItemToList(li) {
+            //li.innerText = li.attributes['name'].value;
+            let item = items.filter(i => i.name == li.attributes['name'].value)[0];
+            if (item == undefined || item.name == undefined) {
+                console.error('Invalid Item!');
+                return;
+            }
+            selectedItems.push(item);
+            li.innerHTML = '';
+            li = null;
+            let tr = document.createElement('tr');
+            let td1 = document.createElement('td');
+            let td2 = document.createElement('td');
+            let td3 = document.createElement('td');
+            let td4 = document.createElement('td');
+            let td5 = document.createElement('td');
+            td1.innerText = tblSelectedItems.querySelectorAll('tr').length;
+            td2.innerText = item.name;
+            let txtQuantity = document.createElement('input');
+            txtQuantity.id = item.name + '_quantity';
+            txtQuantity.type = 'number';
+            txtQuantity.classList.add('txtQuantity');
+            txtQuantity.min = '1';
+            txtQuantity.value = '1';
+            txtQuantity.addEventListener('change', () => { onQuantityChange(item) });
+            td3.appendChild(txtQuantity);
+            let price = document.createElement('span');
+            price.id = item.name + '_price';
+            price.innerText = item.price;
+            td4.appendChild(price);
+            let cost = document.createElement('span')
+            cost.id = item.name + '_cost';
+            cost.classList.add('cost');
+            cost.innerText = item.price;
+            td5.appendChild(cost);
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tr.appendChild(td4);
+            tr.appendChild(td5);
+            tblSelectedItems.appendChild(tr);
+            updateTotal();
+        }
+        function onQuantityChange(item) {
+            let newQuantity = Number.parseFloat(document.querySelector('#' + item.name + '_quantity').value);
+            //console.log(newQuantity);
+            item.quantity = newQuantity;
+            updateCost(item);
+        }
+        function updateCost(item) {
+            let cost = item.price * item.quantity;
+            //console.log(cost);
+            document.querySelector('#' + item.name + '_cost').innerText = cost;
+            updateTotal();
+        }
+        function updateTotal() {
+            let total = 0.00;
+            document.querySelectorAll('.cost').forEach((c) => {
+                //console.log(c.innerText);
+                total += Number.parseFloat(c.innerText);
+            });
+            document.querySelector('#totalCost').innerText = getCurrencyString(total);
+        }
+        function getCurrencyString(num) {
+            let res = [];
+            let currStr = (num + '');
+            let numCurr = currStr.split('.')[0];
+            let decCurr = currStr.split('.')[1];
+            console.log(currStr);
+            console.log(numCurr);
+            console.log(decCurr);
+            numCurr.split('').reverse().forEach((d, index) => {
+                if ((index == 3) || (index > 3 && index % 2 == 1)) {
+                    res.push(',');
+                }
+                res.push(d);
+            });
+            currStr = res.reverse().join('');
+            if (decCurr != undefined) {
+                currStr += '.' + decCurr;
+            }
+            return currStr;
+        }
+    </script>
+</body>
+
+</html>

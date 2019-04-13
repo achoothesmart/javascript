@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Print Test</title>
+    <script src="./print.js"></script>
+    <link rel="stylesheet" href="./print.css"/>
+</head>
+<body>
+    <div id="toPrint">
+        <style>
+
+            th{
+                background-color: grey;
+                color: white;
+            }
+        </style>
+        <table border="1" cellspacing=3 cellpadding=5>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Ashok</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Gayathri</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Visu</td>
+            </tr>
+        </table>
+
+    </div>
+    <br/>
+
+    <input class="btn" type="button" value="Print" onclick="printDiv('toPrint')">
+</body>
+</html>

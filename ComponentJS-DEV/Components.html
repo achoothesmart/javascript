@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Components</title>
+</head>
+<body>
+    <header-component></header-component>
+    <my-component id="name" label="Name" placeholder="Full Name"></my-component><br />
+    <my-component id="mobile" label="Mobile" placeholder="Mobile number"></my-component><br />
+    <my-component id="address" label="Address" placeholder="Residential Address"></my-component><br />
+    
+    <templates>
+        <template id="header-template">
+            <h3>Page Title: {{page_title}}</h3>
+            <p>{{page_description}}</p>
+            <hr />
+        </template>
+        <template id="my-template">
+            <b>{{label}} </b>
+            <input placeholder="{{placeholder}}" value={{com_value}}>
+        </template>
+    </templates>
+    
+    <script src="./scripts/components-script.js"></script>
+    <script src="./scripts/my-component.js"></script>
+</body>
+</html>
