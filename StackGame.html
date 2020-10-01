@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Game</title>
+    <style>
+        .cell{
+            width: .25em;
+            height: .25em;
+            /* background-color: aquamarine; */
+            border: 0.025em solid red;
+        }
+    </style>
+</head>
+<body onkeydown="onKeyDownEvent(event)">
+    <div id="grid">
+
+    </div>
+
+    <script>
+        // Globals
+        let nrows=0;
+        let ncols=0;
+
+        let block1 = {
+            name:   'block1',
+            start:  {x: 4, y: 4},
+            end:    {x: 8, y: 8},
+            color:  'black'
+        }
+
+        function onKeyDownEvent(event){
+            console.log(event);
+        }
+        
+        function init_grid(rows, cols){
+            nrows=rows;
+            ncols=cols;
+            let grid_container = document.createElement('table');
+            grid_container.classList.add('grid-container');
+            for(let r=0; r<rows; ++r){
+                let row = document.createElement('tr');
+                row.classList.add('row');
+                for(let c=0; c<cols; ++c){
+                    let cell = document.createElement('td');
+                    cell.id = r+'-'+c;
+                    cell.classList.add('cell');
+                    //cell.innerHTML = '['+r+','+c+']';
+                    row.appendChild(cell);
+                }
+                grid_container.appendChild(row);
+            }
+
+            document.getElementById('grid').innerHTML = grid_container.outerHTML;
+        }
+
+        function draw_block(block){
+            draw_rect(block.start.x, block.start.y, block.end.x, block.end.y);
+        }
+
+        function draw_rect(x1, y1, x2, y2, color='red'){
+            for(let r=x1; r<=x2; ++r){
+                for(let c=y1; c<=y2; ++c){
+                    fill_cell(r,c,color);
+                }
+            }
+        }
+
+        function fill_cell(x,y,color){
+            document.getElementById(x+'-'+y).style.backgroundColor = color;
+        }
+
+        function clear_grid(){
+            draw_rect(0,0,nrows-1,ncols-1,'white');
+        }
+
+        function block_move_down(block){
+            block.start.x +=1;
+            block.end.x +=1;
+        }
+
+        function block_move_up(block){
+            block.start.x -=1;
+            block.end.x -=1;
+        }
+
+        function block_move_right(block){
+            block.start.y +=1;
+            block.end.y +=1;
+        }
+
+        function block_move_left(block){
+            block.start.y -=1;
+            block.end.y -=1;
+        }
+
+        function check_block(block, animation){
+            let x1 = block.start.x;
+            let y1 = block.start.y;
+            let x2 = block.end.x;
+            let y2 = block.end.y;
+
+            if(x2 >= ncols-1){
+                stop_animation(animation);
+                console.log(block.name + ' reached bottom');
+            }
+
+            if(y2 >= nrows-1){
+                stop_animation(animation);
+                console.log(block.name + ' reached right');
+            }
+        }
+
+        function stop_animation(animation_timer){
+            clearInterval(animation_timer);
+        }
+
+        // --- workflow starts here ---
+
+        init_grid(50,50);
+
+        draw_block(block1);
+        //draw_rect(2,2,4,5,'red');
+
+        let anim1 = setInterval(()=>{
+            try{
+                clear_grid();
+                block_move_down(block1);
+                //block_move_right(block1);
+                check_block(block1, anim1);
+                draw_block(block1);
+            }
+            catch{
+                console.error('Error occured on animation');
+                stop_animation(anim1);
+            }
+            //check_block
+
+        }, 100);
+
+    </script>
+</body>
+</html>

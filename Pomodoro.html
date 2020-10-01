@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro</title>
+    <style>
+        .bar{
+            width: 10em;
+            height: 2em;
+            background-color: burlywood;
+            /* padding: .25em; */
+        }
+        .slide{
+            width: 5em;
+            height: 1em;
+            background-color: blue;
+            /* padding: 0.15em; */
+            /* border: 1em solid; */
+            margin: .5em;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h2>Pomodoro App</h2>
+        <small>Manage your Tasks efficiently</small>
+
+        <div>
+            <button id="btnStart" onclick="startTimer()">Start</button>
+            <button id="btnStop" onclick="stopTimer()">Stop</button>
+            <div> Counter : <span id="counter">0</span></div>
+            <div> Duration : <span id="duration">0</span></div>
+            <div id="bar1" class="bar">
+                <div id="slide1" class="slide"></div>
+            </div>
+            <div id="bar2" class="bar">
+                <div id="slide2" class="slide"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timer1;
+        let mins=0;
+        let sec=0;
+        let counter=0;
+
+        function tick(){
+            // adding a second to time
+            if(sec < 59){
+                sec++;
+            }
+            else{
+                mins++;
+                sec=0;
+            }
+        }
+
+        function startTimer(){
+            timer1 = setInterval(()=>{
+                tick();
+                counter++;
+                updateCounter();
+            },1000);
+        }
+
+        function stopTimer(){
+            clearInterval(timer1);
+            
+            updateCounter();
+        }
+
+        function updateCounter(){
+            document.getElementById('counter').innerHTML = counter;
+            document.getElementById('duration').innerHTML = mins + ' : ' + sec;
+        }
+
+
+    </script>
+
+    <div></div>
+    <div id="pomodoro-desc">
+        <div class="row-section linebottomthin">
+            <div class="row row-block-big-button">
+                <div class="col-sm-12 ">
+                    <h2 class="title">The Pomodoro Technique® Core Process</h2>
+                    <p class="center">The core process of the Pomodoro Technique consists of 6 steps:</p>
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">1. <span class="red">Choose a task </span>you'd like to get
+                        done</h4>
+                    <img style="display: block; margin: 0 auto;max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_1.png?v=2023530922395619069"
+                        align="center" alt="">
+                    <p class="center row-section">Something big, something small, something you’ve been
+                        putting off for
+                        a
+                        million years: it doesn’t matter. What matters is that it’s something that deserves
+                        your full,
+                        undivided attention.</p>
+                    <hr class="lineDotted">
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">2. <span class="red">Set the Pomodoro</span> for 25 minutes
+                    </h4>
+                    <img style="display: block; margin: 0 auto;max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_2.png?v=3307585564617080296"
+                        align="center" alt="">
+                    <p class="center row-section">Make a small oath to yourself: I will spend 25 minutes on
+                        this task
+                        and I
+                        will not interrupt myself. You can do it! After all, it’s just 25 minutes.</p>
+                    <hr class="lineDotted">
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">3. <span class="red">Work on the task</span> until the Pomodoro
+                        rings</h4>
+                    <img style="display: block; margin: 0 auto;max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_3.png?v=15093776274879868177"
+                        align="center" alt="">
+                    <p class="center row-section">Immerse yourself in the task for the next 25 minutes. If
+                        you suddenly
+                        realize you have something else you need to do, write the task down on a sheet of
+                        paper.</p>
+                    <hr class="lineDotted">
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">4. When the Pomodoro rings, <span class="red">put a
+                            checkmark</span> on a
+                        paper
+                    </h4>
+                    <img style="display: block; margin: 0 auto;max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_4.png?v=3131936939295105781"
+                        align="center" alt="">
+                    <p class="center row-section">Congratulations! You’ve spent an entire, interruption-less
+                        Pomodoro on
+                        a
+                        task.</p>
+                    <hr class="lineDotted">
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">5. <span class="red">Take a short break</span></h4>
+                    <img style="display: block; margin: 0 auto;max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_5.png?v=12824499339928057444"
+                        align="center" alt="">
+                    <p class="center row-section">Breathe, meditate, grab a cup of coffee, go for a short
+                        walk or do
+                        something else relaxing (i.e., not work-related). Your brain will thank you later.
+                    </p>
+                    <hr class="lineDotted">
+                </div>
+            </div>
+
+            <div class="row row-section">
+                <div class="col-md-10 col-md-offset-1">
+                    <h4 class="center title">6. Every 4 pomodoros, <span class="red">take a longer
+                            break</span></h4>
+                    <img style="display: block; margin: 0 auto;	max-height:95px;margin-bottom:15px;"
+                        class="img-responsive"
+                        src="//cdn.shopify.com/s/files/1/0257/1675/t/152/assets/how_6.png?v=8715313565777170321"
+                        align="center" alt="">
+                    <p class="center row-section">Once you’ve completed four pomodoros, you can take a
+                        longer break. 20
+                        minutes is good. Or 30. Your brain will use this time to assimilate new information
+                        and rest
+                        before
+                        the next round of Pomodoros.</p>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Inputs</title>
+</head>
+<body bgcolor="grey">
+    <form>
+        <input id="txtName" class="stock" type="text" placeholder="Name"/>
+        <input id="txtAge" class="stock" type="number" placeholder="Age" step="0.00000000000000001" 
+            oninput="this.value = this.value.slice(0,5)"/>
+        <input type="reset"/>
+        <input id="btnSave" type="button" value="save" />
+        <input id="btnRecover" type="button" value="Recover"/>
+    </form> 
+    <script>
+        let stock = {}; 
+        let popup = createPopup();
+        
+        document.getElementById('btnSave').addEventListener('click', ()=>{
+            stock = {};
+            document.querySelectorAll('.stock').forEach((ip) => { 
+                stock[ip.id]=ip.value; 
+            });
+            console.log(stock);
+        });
+
+        document.getElementById('btnRecover').addEventListener('click', ()=>{
+            Object.keys(stock).forEach((id)=>{
+                document.getElementById(id).value = stock[id];
+            });
+        });
+        
+        function createPopup(){
+            let popup = document.createElement('div');
+            popup.style.position = 'absolute';
+            popup.innerHTML = "<b>Welcome</b>";
+            popup.style.backgroundColor = 'blue';
+            popup.style.display = 'none';
+            document.querySelector('body').append(popup);
+            return popup;
+        }
+
+        function editStock(){
+            popup.style.display = 'block';
+            let html='<table>';
+            Object.keys(stock).forEach((id)=>{
+                html += '<tr> <td>' + id + '</td> <td>' + stock[id] + '</td> </tr>';
+            });
+            html += '</table>';
+            popup.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

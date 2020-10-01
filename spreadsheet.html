@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Spreadsheet</title>
+    <style>
+        .sheet{
+            overflow: scroll;
+            height: 25em;
+        }
+        .cell {
+            width: 5em;
+            height: 1.5em;
+            cursor: pointer;
+            border-color: black;
+            border-style: solid;
+            border-width: thin;
+
+            /* user-select: none; */
+        }
+
+        .cell_lbl {
+            width: 95%;
+            height: 75%;
+            overflow: hidden;
+        }
+
+        .cell_txt {
+            width: 95%;
+            height: 75%;
+
+        }
+
+        .cell:hover {
+            /* background-color: lightgray; */
+            border-color: red;
+        }
+
+        #masterTxt {
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .selected {
+            background-color: cornflowerblue;
+        }
+
+        .num_input{
+            width: 4em;
+            font-size: medium;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        Rows <input type="number" class="num_input" id="nRows"/>
+        Columns <input type="number" class="num_input" id="nCols"/> 
+        <input type="button" id="btnCreateSheet" value='Create Sheet'/>
+    </div>
+
+    <div id="book1" class="book hidden">
+        <input id="masterTxt">
+        <div id="sheet1" class="sheet"></div>
+    </div>
+
+    <div id="rcMenu" class='context-menu hidden'>
+        <div class="menu-body">
+            <ul>
+                <li>Copy</li>
+                <li>Paste</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let curr_edit_txt = null;
+        let total_rows = 10;
+        let total_cols = 10;
+
+        let isKeyDown = false;
+        let isTab = false;
+        let isShift = false;
+        let isMouseDown = false;
+
+        let btnCreateSheet = document.getElementById('btnCreateSheet');
+        btnCreateSheet.addEventListener('click',()=>{
+            total_rows = Number.parseInt( document.getElementById('nRows').value);
+            total_cols = Number.parseInt( document.getElementById('nCols').value);
+            init_spreadsheet();
+            console.log('clicked');
+        });
+        //init_spreadsheet();
+        function init_spreadsheet() {
+            let tbl = createTable(total_rows, total_cols);
+            document.querySelector('.book').classList.remove('hidden');
+            document.querySelector('#sheet1').innerHTML = '';
+            document.querySelector('#sheet1').appendChild(tbl);
+
+            document.querySelectorAll('.cell').forEach((cell) => {
+                cell.addEventListener('click', (e) => {
+                    cellClicked(e);
+                });
+            });
+
+            document.querySelectorAll('.cell>input').forEach((cell) => {
+                cell.addEventListener('keydown', (e) => {
+                    //console.log(e.key);
+                    isKeyDown = true;
+                    if (e.key == 'Tab') {
+                        isTab = true;
+                        if(isShift){
+                            editNextCell(e.target, -1);
+                        }
+                        else{
+                            editNextCell(e.target);
+                        }
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // return false;
+                    }
+                    else if(e.key == 'Shift'){
+                        isShift = true;
+                    }
+                });
+
+                cell.addEventListener('keyup', (e) => {
+                    //console.log(e.key);
+                    isKeyDown = false;
+                    isTab = false;
+
+                    if (e.key == 'Enter') {
+                        saveCell(e.target);
+                    }
+                    else if (e.key == 'Shift') {
+                        isShift = false;
+                    }
+                });
+            });
+
+            document.querySelectorAll('.cell>input').forEach((cell) => {
+                cell.addEventListener('blur', (e) => {
+                    //console.log(e.target);
+                    saveCell(e.target)
+                });
+            });
+
+            document.querySelectorAll('.cell>input').forEach((cell) => {
+                cell.addEventListener('input', (e) => {
+                    console.log(e);
+                    if (e.inputType == 'insertFromPaste') {
+                        handlePaste(e.target);
+                    }
+                });
+            });
+
+            // initializing context menu
+            if (document.addEventListener) {
+                document.addEventListener('contextmenu', function (e) {
+                    alert("You've tried to open contextmenu"); //here you draw your own menu
+                    e.preventDefault();
+                }, false);
+            } else {
+                document.attachEvent('oncontextmenu', function () {
+                    alert("You've tried to open oncontextmenu");
+                    window.event.returnValue = false;
+                });
+            }
+        } // end of init method
+
+        // function selectCell(target) {
+        //     let cell = document.getElementById(target.id.split(':')[0]);
+        //     cell.classList.add('selected');
+        // }
+
+        // function unSelectCell(target) {
+        //     let cell = document.getElementById(target.id.split(':')[0]);
+        //     cell.classList.remove('selected');
+        // }
+
+        function editNextCell(currCellTxt, x=1 , y=0) {
+
+            let rowCol = getRowColFromId(currCellTxt.id);
+            let nextRowCol = getNextRowCol(rowCol, x, y);
+            editCell(getCellFromRowCol(nextRowCol));
+        }
+
+        function cellClicked(event) {
+            editCell(event.target);
+        }
+
+        function editCell(target) {
+            let input_id = null;
+            let lbl_id = null;
+
+            // clicked on label
+            if (target.id.indexOf(':lbl') >= 0) {
+                input_id = target.id.split(':')[0] + ':txt';
+                lbl_id = target.id;
+            }
+
+            // clicked on txt
+            else if (target.id.indexOf(':txt') >= 0) {
+                input_id = target.id;
+                lbl_id = target.id.split(':')[0] + ':lbl';
+            }
+
+            // clicked on cell
+            else if (target.id.indexOf('_') >= 0) {
+                input_id = target.id + ':txt';
+                lbl_id = target.id + ':lbl';
+            }
+
+            let input = document.getElementById(input_id);
+            let cell_lbl = document.getElementById(lbl_id);
+
+            if (input != null) {
+                input.classList.remove('hidden');
+                input.focus();
+            }
+            if (cell_lbl != null) {
+                cell_lbl.classList.add('hidden');
+            }
+
+            if (curr_edit_txt != null && curr_edit_txt.id != input.id) {
+                saveCell(curr_edit_txt);
+            }
+            curr_edit_txt = input;
+            // unSelectCell(input);
+        }
+
+        function saveCell(cell_txt) {
+            let cell_lbl = document.getElementById(cell_txt.id.split(':')[0] + ':lbl');
+            cell_lbl.innerText = cell_txt.value;
+            cell_txt.classList.add('hidden');
+            cell_lbl.classList.remove('hidden');
+            curr_edit_txt = null;
+        }
+
+        function handlePaste(cell_txt) {
+            let lines = cell_txt.value.split('\n');
+            let currTxt = cell_txt;
+
+            lines.forEach((line) => {
+                let words = line.split('\t');
+                
+                words.forEach((word) => {
+                    currTxt.value = word;
+                    saveCell(currTxt);
+
+                    let rowCol = getRowColFromId(currTxt.id);
+                    let nextRowCol = getNextRowCol(rowCol);
+                    currTxt = getTxtFromRowCol(nextRowCol);
+                });
+            });
+
+        }
+
+        function createTable(rows, cols) {
+            if (rows > 0 && cols > 0) {
+                let tbl = document.createElement('table');
+                tbl.classList.add('sheet_style');
+                for (let iRow = 0; iRow < rows; iRow++) {
+                    let tr = document.createElement('tr');
+                    for (let iCol = 0; iCol < cols; iCol++) {
+                        let td = document.createElement('td');
+                        let cell_id = iRow + '_' + iCol;
+                        let cell_val = '';
+                        let cell = createCell(cell_id, cell_val);
+                        td.appendChild(cell);
+                        tr.appendChild(td);
+                    }
+                    tbl.appendChild(tr);
+                }
+                return tbl;
+            }
+            return null;
+        }
+
+        function createCell(cell_id, cell_val) {
+            let cell_div = document.createElement('div');
+            cell_div.classList.add('cell');
+            cell_div.id = cell_id;
+            cell_div.innerText = cell_val;
+
+            // adding a span as a label into a cell
+            let lbl = document.createElement('div');
+            lbl.id = cell_id + ':lbl';
+            lbl.innerText = cell_val;
+            lbl.classList.add('cell_lbl');
+            cell_div.appendChild(lbl);
+
+            // adding an input box into a cell
+            let txt = document.createElement('input');
+            txt.id = cell_id + ':txt';
+            txt.value = cell_val;
+            txt.classList.add('cell_txt', 'hidden');
+            cell_div.appendChild(txt);
+
+            return cell_div;
+        }
+
+        // -- baseline functions --
+
+        function getRowColFromId(id) {
+            return id.split(':')[0].split('_').map((n) => { return Number.parseInt(n) });
+        }
+
+        function getNextRowCol(rowCol, x=1, y=0) {
+            let row = rowCol[0];
+            let col = rowCol[1];
+            let nextRow = 0;
+            let nextCol = 0;
+
+            nextCol = col + x;
+            nextRow = row + y;
+
+            // handling end of line
+            if (col + 1 > total_cols - 1) {
+                nextRow = row + 1;
+                nextCol = 0;
+            }
+
+            // reaching end of all cells, moving to first cell
+            if (nextRow > total_rows - 1) {
+                return [0, 0];
+            }
+            else if(nextRow < 0){
+                return [total_rows-1, total_cols-1];
+            }
+
+            return [nextRow, nextCol];
+        }
+
+        function getCellFromRowCol(rowCol) {
+            return document.getElementById(rowCol[0] + '_' + rowCol[1]);
+        }
+
+        function getTxtFromRowCol(rowCol) {
+            return document.getElementById(rowCol[0] + '_' + rowCol[1] + ':txt');
+        }
+    </script>
+</body>
+
+
+</html>

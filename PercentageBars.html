@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percentage Bars [...]</title>
+    <style>
+        #bars{
+            width: 100%;
+            background-color: yellow;
+            
+
+            display: flex;
+            flex-direction: row;
+
+        }
+
+        .bar{
+            padding-top: 1em;
+            padding-bottom: 1em;
+            border-style: solid;
+            
+            border-width: thin;
+            color: white;
+            text-shadow: 2px 2px black;
+        }
+
+        .bar:hover{
+            border-color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="bars">
+
+    </div>
+
+    <div id="bars2">
+
+    </div>
+    <div>
+        Enter a number to add : <input id="txtNumber" placeholder="Number Input">
+        <input id="btnAdd" type="button" value="Add"/>
+    </div>
+
+    <script>
+        // Globals
+        let lstEntries = [];
+        let sum = 0;
+
+        onPageLoad();
+
+        btnAdd.addEventListener('click', ()=>{
+            addNumber(txtNumber.value);
+        });
+        txtNumber.addEventListener('keydown', (event)=>{
+            // console.log(event);
+            if(event.key == 'Enter'){
+                addNumber(txtNumber.value);
+            }
+        });
+
+        txtNumber.addEventListener('change',(event)=>{
+            console.log(event);
+        });
+
+        txtNumber.addEventListener('input',(event)=>{
+            console.log(event);
+            if(event.target.value === ''){
+                localStorage.setItem('local-key-to-number', '');
+            }
+            else{}
+            switch(event.inputType){
+                case 'deleteContentForward': // delete key
+                    localStorage.setItem('local-key-to-number', event.target.value);
+                    break;
+                case 'deleteContentBackward': // backspace key
+                    localStorage.setItem('local-key-to-number', event.target.value);
+                    break;
+                case 'insertText':
+                    let key = event.data;
+                    let code = key.charCodeAt(0);
+                    console.log(code);
+                    if(code >= 48 && code <= 57){
+                        // a number between 0 and 9
+                        localStorage.setItem('local-key-to-number', event.target.value);
+                    }
+                    else{
+                        event.target.value = localStorage.getItem('local-key-to-number');
+                    }
+                    break;
+
+            }
+            
+        });
+
+        function onPageLoad(){
+            localStorage.setItem('local-key-to-number', '');
+            txtNumber.focus();
+        }
+
+        function updateEntries(){
+            lstEntries.forEach(ent => {
+                ent.percentage = ent.entry / sum * 100;
+                document.getElementById(ent.bar_id).style.width = `${ent.percentage}%`;
+                let label_text = `${ent.entry}(${shorten(ent.percentage)}%)`;
+                document.getElementById(ent.bar_id).innerText = label_text;
+                document.getElementById(ent.bar_id).title = label_text;
+
+            });
+            // bars.innerText = `${lstEntries.map((ent => ent.entry))} => sum: ${sum}` ;
+            // bars2.innerText = `${lstEntries.map((ent => ent.percentage))}` ;
+        }
+
+        function addNumber(num){
+            let result = checkNumber(num);
+            if(result.isNum && result.num > 0){
+                console.log(`Adding ${result.num}`);
+                let bar_id = `bar_${Date.now()}`;
+                sum += result.num;
+                
+                let entry = {bar_id: bar_id, entry: result.num, percentage: 0};
+                lstEntries.push(entry);
+                loadBar(entry, bar_id);
+                updateEntries();
+                
+            }
+            else{
+                console.log(`${num} is not a valid number. Enter a valid positive integer`);
+            }
+            txtNumber.value = '';
+        }
+
+        function loadBar(entry, bar_id){
+            bars.innerHTML += createBar(entry, bar_id);
+        }
+        function createBar(entry, bar_id){
+            let height = '1em';
+            let width = `${entry.percentage}%`;
+            let bgcol = `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`;
+            let bar = `<div id='${bar_id}' class='bar' style='height:${height}; width:${width}; background-color:${bgcol}'>  </div>`;
+            return bar;
+        }   
+        function checkNumber(num_str){
+            let num = 0;
+            num_str = num_str.trim();
+            try{
+                num = Number.parseFloat(num_str);
+                console.log(num);
+                return {isNum: (num.toString().length == num_str.length) && (num.toString() != 'NaN'), num: num};
+            }
+            catch{
+                return {isNum: false, num: NaN};
+            }
+            //return isNum{true;
+        }
+
+        function shorten(num){
+            if(num.toString().indexOf('.')>0){
+                let arr = num.toString().split('.');
+                return `${arr[0]}.${arr[1].substr(0,2)}`;
+            }
+            else{
+                return num;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+body{
+	/*background-color: pink;*/
+	background-image: url("resources/images/cotton-field.jpg");
+}
+
+.cell{
+	width: 80px;
+	height: 30px;
+	background-color: green;
+	border-style: solid;
+	border-color: black;
+	border-width: thin;
+	display: table-cell;
+}
+
+.cell:hover{
+	border-color: yellow;
+	cursor: pointer;
+}
+
+.cell:active{
+	background-color: yellow;
+}
+
+.head{
+	width: 80px;
+	height: 30px;
+	text-align: center;
+	color: Blue;
+	background-color: red;
+	border-style: solid;
+	border-color: black;
+	border-width: thin;
+	display: table-cell;
+}
+.row_head{
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	color: white;
+	background-color: grey;
+	border-style: solid;
+	border-color: black;
+	border-width: thin;
+	display: table-cell;
+}

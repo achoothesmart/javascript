@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bouncing Ball</title>
+    <style>
+        #bounce_space{
+            width: 50%;
+            height: 60%;
+            position: absolute;
+            top: 20%;
+            background-color: darkmagenta;
+            left: 25%;
+        }
+
+        #bouncingBall{
+            width: 4em;
+            height: 4em;
+            position: absolute;
+            /*top: 0em;*/
+            background-color: red;
+            border-radius: 10em;
+        }
+    </style>
+</head>
+<body>
+    <div id="bounce_space">
+        <div id="bouncingBall"></div>
+    </div>
+
+    <script>
+        var time_interval=setInterval(function(){timer_tick()},1000);
+        var ball = document.getElementById('bouncingBall');
+        
+        function timer_tick(){
+            console.log('works');
+            ball.style.top =  ball.offsetTop + "1%";
+        }
+    </script>
+</body>
+</html>

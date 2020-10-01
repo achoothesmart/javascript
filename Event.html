@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Js Events</title>
+    <style>
+        div {
+            cursor: pointer;
+            border: 1px solid #000;
+            padding: 1em;
+            background-color: white;
+        }
+
+        div:hover{
+            background-color: yellow;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <div id="L1">
+        L1
+        <div id="L2">
+            L2
+            <div id="L3">
+                L3
+                <div id="L4">
+                    L4
+                    <div id="L5">
+                        L5
+                        <div id="L6">
+                            L6
+                            <!-- Building custom events -->
+                            <div>
+                                <input id="input1" oninput="handleInput(event)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Testing Event Bubbling and Capturing 
+        // for(let i=1; i<=6; ++i){
+        //     document.getElementById("L"+i).addEventListener('click',()=>{
+        //         console.log("L" + i + " clicked");
+        //     }, i%2==0);
+        // }
+
+        document.getElementById("L1").addEventListener('click', (event) => {
+            console.log(event.target.id + ' clicked');
+        });
+
+        document.getElementById("L1").addEventListener('help', (event) => {
+            console.log(event.target.id + ' is asking for help');
+        });
+
+        //  ==== Custom Events ====
+
+        // creating a custom event object
+        let helpEvent = new CustomEvent('help', {
+            bubbles: true,
+            cancelable: true,
+            detail: {
+                helpMessage: 'Kindly reach 1031 for any help'
+            }
+        }
+        );
+
+        input1.addEventListener('help', (event) => {
+            console.log(event.detail.helpMessage);
+        });
+
+        // handleInput will call the custom event on any custom need (here, when 'help' is typed)
+        function handleInput(event) {
+            //console.log(event.target.value);
+            if (event.target.value === 'help') {
+                input1.dispatchEvent(helpEvent);
+            }
+        }
+    </script>
+</body>
+
+</html>

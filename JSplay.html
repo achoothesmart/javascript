@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JS Play</title>
+</head>
+<body>
+    <textarea id="txtScript" rows="20" cols="50">
+        console.log('working');
+    </textarea>
+    <button id="btnExecute">Execute</button>
+    <div id="space"></div>
+    <script>
+        let btnExecute = document.getElementById('btnExecute');
+        let space = document.getElementById('space');
+
+        btnExecute.addEventListener('click',()=>{
+            let script = document.createElement('script');
+            script.innerText = document.getElementById('txtScript').value;
+            space.innerHTML='';
+            space.appendChild(script);
+        });
+    </script>
+
+</body>
+</html>

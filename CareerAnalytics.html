@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Analytics</title>
+</head>
+<body>
+    Skill<input type="text" id="txtSkill" placeholder="Type Skill here"/> <br/>
+    Openings Data<br/><textarea id="txtOpenings" rows="10", cols="50" placeholder="Paste openings data here"></textarea>
+    <br/>
+    <input type="button" id="btnProcess" value="Process" onclick="process()"/>
+    <input type="button" id="btnClearData" value="Clear Data" onclick="clearData()"/>
+
+    <script>
+        // Globals
+        var skillTree = {};
+
+        function process(){
+            let skill = txtSkill.value;
+            let openingsData = txtOpenings.value.split(')')
+                                                .filter(op=>{if(op!='') return open})
+                                                .map(op => { return op+')'});
+
+            openingsData.forEach(opening => {
+                let opSet = opening.split('(').join(')').split(')').filter(el=>{if(el!='')return el});
+                opSet = opSet.map(el => { return el.trim()});
+                let company = opSet[0];
+                
+                if(skillTree[company] != undefined){
+                    //console.log(leaf);
+                    skillTree[company][skill] = Number.parseInt(opSet[1]);
+                }
+                else{
+                    let part = {};
+                    part[skill] = Number.parseInt(opSet[1]);
+                    skillTree[company] = part;
+                }
+            });
+            console.log(skillTree);
+            reset();
+        }
+
+        function reset(){
+            txtSkill.value = '';
+            txtOpenings.value='';
+        }
+
+        function clearData(){
+            skillTree = {};
+        }
+    </script>
+</body>
+</html>

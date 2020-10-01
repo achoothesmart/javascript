@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        .container {
+            height: 100%;
+            width: 100%;
+            /*background-color: yellow;*/
+            position: absolute;
+
+        }
+
+        #user1 {
+            bottom: 0em;
+            left: 0em;
+            position: absolute;
+            width: 50%;
+        }
+
+        #user2 {
+            bottom: 0em;
+            right: 0em;
+            position: absolute;
+            width: 50%;
+        }
+        .user1_chat{
+            text-align: left;
+        }
+
+        .user2_chat{
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="chat">
+        </div>
+        <div>
+            <textarea class="user" id="user1" placeholder="User 1"></textarea>
+            <textarea class="user" id="user2" placeholder="User 2"></textarea>
+        </div>
+    </div>
+
+
+    <script>
+        user1.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                push_chat('chat', 'user1');
+            }
+        });
+
+        user2.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                push_chat('chat', 'user2');
+            }
+        });
+
+        document.querySelectorAll('.user').forEach((u) => {
+            u.addEventListener('keyup', (event) => {
+                //console.log(event.keyCode);
+                if (event.keyCode == 13 || event.keyCode == 27) { // Enter Key
+                    u.value = '';
+                }
+            });
+        });
+
+
+
+
+        function push_chat(chat_id, user_id) {
+            let chat = document.getElementById(chat_id);
+            let user = document.getElementById(user_id);
+
+            let chat_item = document.createElement('div');
+            chat_item.classList.add(user_id+'_chat');
+            chat_item.innerText = user_id + ' : ' + user.value.trim();
+            //console.log(user);
+            chat.appendChild(chat_item);
+            user.value = '';
+        }
+    </script>
+</body>
+
+</html>

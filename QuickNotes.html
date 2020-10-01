@@ -1,0 +1,441 @@
+<html>
+<head>
+    <title>Quick Notes</title>
+    <style>
+        body{
+            background-color: lightskyblue;
+            user-select: none;
+        }
+        .txtbox {
+            font-size: large;
+            border-radius: 5px;
+            width: 500px;
+            padding: 5px;
+        }
+
+        .button {
+            font-size: large;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .notes {
+            font-size: large;
+            cursor: pointer;
+        }
+        .note:hover{
+            /*color: white;*/
+        }
+        .note:active, .selected {
+            font-weight: bold;
+            color: rgb(10, 17, 150);
+        }
+
+        .note.unsaved {
+            color: darkgreen;
+        }
+
+        .overlay {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(128, 128, 128, 0.5);
+            
+            position: fixed;
+            top: 0px;
+            left: 0px;
+
+        }
+
+        .dialog{
+            width: 50%;
+            height: 50%;
+            position: fixed;
+            left: 25%;
+            top: 25%;
+            background-color: gray;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .txtArea{
+            width:100%;
+            height: 100%;
+        }
+
+        .hidden{
+            display: none;
+        }
+
+        #txtmsg{
+            position: fixed;
+            top: 10%;
+            left: 25%;
+            color: black;
+            background-color: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .search{
+            background-color: yellow;
+        }
+
+        .badge{
+            background-color: rgb(7, 122, 247);
+            border-radius: 10px;
+            color: white;
+            padding: 4px;
+        }
+
+        #txtEditNote {
+            font-size: large;
+            border-radius: 5px;
+            height: 90%;
+            padding: 5px;
+            border-spacing: 50px;
+        }
+
+
+
+        /*#xClose{
+            position: fixed;
+            text-align: right;
+            cursor: pointer;
+            font-size: large;
+            color: black;
+            border-color: black;
+        }*/
+    </style>
+
+
+
+</head>
+<body>
+    <div>
+        <input id="btnSave" type="button" class="button" value="Save" />
+        <!--<input id="btnClear" type="button" class="button" value="Clear" />-->
+        <input id="btnRemove" type="button" class="button" value="Remove All" />
+        <input id="btnExport" type="button" class="button" value="Export" />
+        <input id="txtSearch" class="txtbox" placeholder="Search Notes" />
+        <input id="btnClearSearch" type="button" class="button hidden" value="X" />
+
+        <span id="foundCount" class="badge hidden"></span>
+        <span id="lblSelectedCount" class="badge hidden"></span>
+
+    </div>
+    <div>
+        <ul id="lstNotes" class="notes"></ul>
+        <ul id="lstNotesSearch" class="notes hidden"></ul>
+    </div>
+    <div>
+
+        <textarea id="txtNote" rows="2" cols="20" class="txtbox" placeholder="Type Notes & Press Enter"></textarea>
+        <!--<input id="txtNote" type="text" class="txtbox" placeholder="Type Notes & Press Enter" />-->
+        
+    </div>
+
+    <div id="editOverlay" class="overlay hidden">
+        <div class="dialog">
+            <textarea id="txtEditNote" class="txtArea" placeholder="Editing.."></textarea>
+            <input id="btnSaveEdit" type="button" class="button" value="Save" />
+            <input id="btnCancelEdit" type="button" class="button" value="Cancel" />
+        </div>
+    </div>
+
+    <div id="exportOverlay" class="overlay hidden">
+        <span id="txtmsg">Text Copied to the Clipboard</span>
+        <div id="dialog" class="dialog">
+            <!--<div id="xClose">X</div>-->
+
+            <textarea id="txtExport" class="txtArea"></textarea>
+        </div>
+    </div>
+
+    <script>
+        // Globals
+        var txtNote = document.getElementById('txtNote');
+        var lstNotes = document.getElementById('lstNotes');
+        var btnSave = document.getElementById('btnSave');
+        //var btnClear = document.getElementById('btnClear');
+        var btnRemove = document.getElementById('btnRemove');
+        var btnExport = document.getElementById('btnExport');
+        var txtExport = document.getElementById('txtExport');
+        var txtSearch = document.getElementById('txtSearch');
+        var btnClearSearch = document.getElementById('btnClearSearch');
+        
+        var txtEditNote = document.getElementById('txtEditNote');
+
+        var note;
+        var filtered = false;
+        var notesHtml;
+        var selectedCount = 0;
+
+        loadNotes();
+
+        // Events
+
+        txtNote.addEventListener('keypress', (event) => {
+            //console.log(event.keyCode);
+            if (event.keyCode == 13) { // Enter Key
+                addNote(txtNote.value, false);
+                txtNote.value = '';
+            }
+        });
+
+        txtNote.addEventListener('keyup', (event) => {
+            //console.log(event.keyCode);
+            if (event.keyCode == 13 || event.keyCode == 27) { // Enter Key
+                txtNote.value = '';
+            }
+        });
+
+        btnSave.addEventListener('click', () => {
+            saveNotes();
+        });
+        
+        //btnClear.addEventListener('click', () => {
+        //    lstNotes.innerHTML = '';
+        //    txtNote.value = '';
+        //});
+
+        btnRemove.addEventListener('click', () => {
+            if (selectedCount == 0) {
+                // clear all
+                lstNotes.innerHTML = '';
+                txtNote.value = '';
+            }
+            else {
+                document.querySelectorAll("#lstNotes .selected").forEach((sel) => sel.remove());
+            }
+            stateChanged();
+        });
+
+        btnExport.addEventListener('click', () => {
+            exportNotes();
+        });
+
+        btnClearSearch.addEventListener('click', () => {
+            clearFilter();
+        });
+
+        document.querySelector('#exportOverlay').addEventListener('mousedown', () => {
+            document.getElementById('exportOverlay').classList.add('hidden');
+        });
+
+        document.querySelector('#exportOverlay #txtExport').addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+        });
+
+        txtSearch.addEventListener('keyup', (event) => {
+            //console.log(event.keyCode);
+            if (txtSearch.value.trim() == '' || event.keyCode == 27) {
+                clearFilter();
+            }
+            else {
+                filterNotes(txtSearch.value);
+            }
+        });
+
+        // Functions
+
+        function addNote(noteText, isPageLoad) {
+            if (noteText.trim() != '') {
+                noteText = noteText.trim();
+                if (!isPageLoad && noteText.charAt(0) == '$') {
+                    // a command
+                    console.log('Executing command ' + noteText);
+                    executeCommand(noteText);
+                }
+                else {
+                    noteText.split('\n').forEach(function (line) {
+                        if (line.trim() != '') {
+                            var noteItem = document.createElement('li');
+                            noteItem.innerText = line;
+                            noteItem.classList.add('note');
+                            if (!isPageLoad) {
+                                noteItem.classList.add('unsaved');
+                            }
+                            noteItem.addEventListener('click', () => noteClick(noteItem));
+                            noteItem.addEventListener('dblclick', () => noteDblClick(noteItem));
+                            lstNotes.appendChild(noteItem)
+                        }
+
+                    });
+
+                    //saveNotes();
+                    note = noteText;
+                }
+            }
+        }
+
+        function executeCommand(cmd) {
+            switch (cmd) {
+                case '$save':
+                    saveNotes();
+                    break;
+                case '$export':
+                    exportNotes();
+                    document.execCommand("undo");
+                    break;
+            }
+        }
+
+        function noteClick(noteItem) {
+            //console.log(noteItem);
+            if (noteItem.classList.contains('selected')){
+                noteItem.classList.remove('selected');
+            }
+            else {
+                noteItem.classList.add('selected');
+            }
+            stateChanged();
+        }
+
+        function noteDblClick(noteItem) {
+            let txt = noteItem.innerText;
+            document.querySelector('#editOverlay').classList.remove('hidden');
+            txtEditNote.value = txt;
+            //noteItem.innerHTML = '';
+            //let txtEdit = document.createElement('input');
+            //txtEdit.classList.add('txtbox');
+            //txtEdit.value = txt;
+            //noteItem.appendChild(txtEdit);
+        }
+
+        function saveNotes() {
+            var arrNotes = [];
+            lstNotes.querySelectorAll('li').forEach(function (item) {
+                item.classList.remove('unsaved');
+                arrNotes.push(item.innerText);
+            });
+            localStorage.setItem('quick_notes', JSON.stringify(arrNotes));
+        }
+
+        function loadNotes() {
+            var arrNotes = JSON.parse(localStorage.getItem('quick_notes'));
+            if (arrNotes != null) {
+                arrNotes.forEach(function (item) {
+                    addNote(item, true);
+
+                });
+            }
+        }
+
+        function exportNotes() {
+            //console.log('working..')
+            document.getElementById('exportOverlay').classList.remove('hidden');
+            txtExport.value = '';
+
+            let toExport;
+            if (selectedCount == 0) {
+                toExport = lstNotes.querySelectorAll('li');
+            }
+            else {
+                toExport = lstNotes.querySelectorAll('li.selected');
+            }
+
+            toExport.forEach(function (item) {
+                txtExport.value += item.innerText + '\n';
+            });
+            txtExport.select();
+            document.execCommand('copy');
+        }
+
+        function filterNotes(strSearch) {
+            document.getElementById('lstNotes').classList.add('hidden');
+            document.getElementById('lstNotesSearch').classList.remove('hidden');
+            btnClearSearch.classList.remove('hidden');
+
+            var arr = document.querySelectorAll('#lstNotes .note');
+            var res = Array.from(arr).map((li) => li).filter((li) => li.textContent.toLocaleLowerCase().includes(strSearch.toLocaleLowerCase()))
+
+            document.getElementById('lstNotesSearch').innerHTML = '';
+            var count = 0;
+            res.forEach((li) => {
+                var sli = li.cloneNode(true);
+                sli.addEventListener('click', () => noteClick(sli));
+                sli.addEventListener('dblclick', () => noteDblClick(sli));
+                //var regex = new RegExp(strSearch,'gi');
+                //sli.innerHTML = sli.innerHTML.replace(regex, '<span class="search">' + strSearch + '</span>');
+                var obj = replaceByCover(sli.innerHTML, strSearch, '<span class="search">', '</span>', count);
+                sli.innerHTML = obj.result;
+                count = obj.count;
+                document.getElementById('lstNotesSearch').appendChild(sli);
+            }); 
+
+            displayBadge('foundCount', 'Found ' + count + ' matches');
+        }
+
+        function clearFilter() {
+            document.getElementById('lstNotes').classList.remove('hidden');
+            document.getElementById('lstNotesSearch').classList.add('hidden');
+            document.getElementById('lstNotesSearch').innerHTML = '';
+            txtSearch.value = '';
+            displayBadge('foundCount','');
+            btnClearSearch.classList.add('hidden');
+            stateChanged();
+        }
+
+        function replaceByCover(str, search, prefix, postfix, count) {
+            if (count == undefined) { count = 0;}
+            var cut_off = 0;
+            var rem_str = str;
+            var new_str = "";
+            var extra = prefix.length + postfix.length;
+
+            // to avoid unexpected infinite loop, set a overflow point
+            var overflow = 100;
+            var loop = 0;
+            
+            while (cut_off <= str.length - 1) {
+                if (++loop >= overflow) { console.error('Overflow'); break; }
+
+                var found_i = rem_str.toLowerCase().indexOf(search.toLowerCase(), 0);
+
+                if (found_i == -1) {
+                    break;
+                }
+                else {
+                    ++count;
+                }
+
+                var found_str = rem_str.substr(found_i, search.length);
+                cut_off = found_i + search.length;
+                rem_str = rem_str.replace(found_str, prefix + found_str + postfix);
+                cut_off += extra;
+                new_str += rem_str.substr(0, cut_off);
+                rem_str = rem_str.substr(cut_off, str.length - cut_off + extra);
+            }
+            return {
+                result: new_str + rem_str,
+                count: count
+            };
+        }
+
+        function stateChanged() {
+            selectedCount = lstNotes.querySelectorAll(".note.selected").length;
+
+            if (selectedCount > 0) {
+                btnRemove.value = 'Remove Selected';
+                btnExport.value = 'Export Selected';
+                displayBadge('lblSelectedCount', selectedCount + ' notes selected');
+            }
+            else { // none selected
+                btnRemove.value = 'Remove All';
+                btnExport.value = 'Export';
+                displayBadge('lblSelectedCount', '');
+            }
+        }
+
+        function displayBadge(badge_id, txt) {
+            var badge = document.getElementById(badge_id);
+            if (txt.trim() != '') {
+                badge.classList.remove('hidden');
+                badge.innerText = txt;
+            }
+            else {
+                badge.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

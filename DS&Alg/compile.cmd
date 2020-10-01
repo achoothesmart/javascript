@@ -1,0 +1,1 @@
+tsc .\QuickSort.ts

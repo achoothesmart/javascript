@@ -1,0 +1,165 @@
+<html>
+<head>
+    <title>View as Files</title>
+    <style>
+        .txtbox {
+            font-size: large;
+            border-radius: 5px;
+            width: 500px;
+            padding: 5px;
+        }
+
+        .button {
+            font-size: large;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .file_name {
+            padding: 5px;
+            cursor: pointer;
+            border-style: solid;
+            border-width: thin;
+            border-spacing: 2px;
+            display: inline-flex;
+            border-top-left-radius: 10px;
+            /*border-top-right-radius: 10px;*/
+        }
+
+        .file_name:active, .selected {
+            background-color: purple;
+            color: white;
+        }
+
+        #fileViewer{
+            padding : 10px;
+        }
+
+        .new{
+            background-color: forestgreen;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="filesInput" rows="10" cols="100"></textarea> <br/>
+    <input id="btnCreate" type="button" class="button" value="View As Files" />
+    <input id="btnNewFile" type="button" class="button" value="+ New File" />
+    <input id="btnSaveFile" type="button" class="button" value="Save File" disabled />
+    <div id="lstFiles">
+
+    </div>
+    <textarea id="fileViewer" rows="20" cols="100"></textarea>
+
+    <script>
+        let files = {}
+        let fileNames = [];
+
+        function $(selector) {
+            return document.querySelector(selector);
+        }
+        function $all(selector) {
+            return document.querySelectorAll(selector);
+        }
+
+        $('#btnCreate').addEventListener('click', () => {
+            createFiles();
+        });
+
+        $('#btnNewFile').addEventListener('click', () => {
+            addNewFile();
+        });
+        $('#btnSaveFile').addEventListener('click', () => {
+            saveFile();
+        });
+
+        function createFiles() {
+            files = {};
+            fileNames = [];
+            let isFile = false;
+            let currFileName;
+            let currFileContent;
+
+            $('#filesInput').value.split('\n').forEach((line) => {
+                if (line.charAt(0) == '$') {
+                    // command - $FILE
+                    let arr = line.split(':');
+
+                    switch (arr[0].trim()) {
+                        case '$FILE':
+                            isFile = true;
+                            fileNames.push(arr[1].trim());
+                            currFileName = arr[1].trim();
+                            currFileContent = '';
+                            break;
+
+                        case '$FILEEND':
+                            files[currFileName] = currFileContent;
+                            isFile = false;
+                            currFileName = undefined;
+                            currFileContent = '';
+                            break;
+                    }
+                }
+                else {
+                    // normal line
+                    if (isFile) {
+                        currFileContent += line + '\n';
+                    }
+                }
+            });
+
+            reset();
+            fileNames.forEach((fileName) => {
+                let div = document.createElement('div');
+                div.classList.add('file_name');
+                div.innerText = fileName;
+                div.addEventListener('click', (event) => {
+                    $all('.file_name').forEach((file_lbl) => {
+                        file_lbl.classList.remove('selected')
+                    });
+                    event.target.classList.add('selected');
+                    loadFileContent(event.target.innerText);
+                });
+                $('#lstFiles').appendChild(div)
+            });
+
+        }
+
+        function loadFileContent(fileName) {
+            $('#fileViewer').value = files[fileName];
+        }
+
+        function addNewFile() {
+            let div = document.createElement('div');
+            div.classList.add('file_name', 'new');
+            div.innerText = 'New File';
+
+            $('#lstFiles').appendChild(div);
+            $('#btnNewFile').disabled = true;
+            $('#btnSaveFile').disabled = false;
+            $('#fileViewer').value = '';
+        }
+
+        function saveFile() {
+            let fileName = prompt("Enter File Name");
+            //console.log(fileName);
+            if (fileName != null && fileName.trim() != "") {
+                console.log('saving ' + fileName);
+                $('#filesInput').value += '\n$FILE : ' + fileName + '\n' + $('#fileViewer').value + '\n$FILEEND';
+                alert('File Saved Successfully');
+                
+                
+                createFiles();
+            }
+        }
+
+        function reset() {
+            $('#lstFiles').innerHTML = '';
+            $('#fileViewer').value = '';
+            $('#btnNewFile').disabled = false;
+            $('#btnSaveFile').disabled = true;
+        }
+    </script>
+</body>
+</html>
