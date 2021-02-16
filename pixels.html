@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixels</title>
+    <style>
+        body {
+            user-select: none;
+            -moz-user-select: none;
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .cell {
+            width: 5px;
+            height: 5px;
+            background-color: yellow;
+            cursor: pointer;
+        }
+
+        .cell:hover {
+            background-color: red;
+        }
+
+        #statusBar{
+            bottom: 0px;
+            position: absolute;;
+            height: 2em;
+            width: 99%;
+            background-color: grey;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="plane"></div>
+    <div id="statusBar">
+        <table>
+            <tr>
+                <td><div id="lblMessage"></div></td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        // globals
+
+        function init() {
+            let planeHtml = '';
+            for (let row = 0; row < 100; row++) {
+                planeHtml += '<div class="row">';
+                for (let col = 0; col < 100; col++) {
+                    planeHtml += `<div class="cell" id="${row}-${col}"> </div>`;
+                }
+                planeHtml += '</div>';
+            }
+            plane.innerHTML = planeHtml;
+        }
+
+        init();
+
+        plane.addEventListener('mousedown', (event) => {
+            // console.log(event.target.id);
+            if (event.buttons === 1) {
+                paintAsync(event.target.id, 'red');
+            }
+        });
+
+        plane.addEventListener('mouseout', (event) => {
+            // console.log(event.buttons);
+
+            if (event.buttons === 1) {
+                paintAsync(event.target.id, 'red');
+            }
+        });
+
+        plane.addEventListener('mousemove', (event) => {
+            // console.log(event.buttons);
+
+            if (event.buttons === 1) {
+                paintAsync(event.target.id, 'red');
+            }
+            message(event.target.id);
+        });
+
+        plane.addEventListener('mouseup', (event) => {
+            // console.log(event.target.id);
+            
+        });
+
+        // plane.addEventListener.
+
+        function paintAsync(id, color) {
+            return new Promise((resolve, reject) => {
+
+                try {
+                    document.getElementById(id).style.backgroundColor = color;
+                    resolve(true);
+                }
+                catch {
+                    reject(false);
+                }
+
+            });
+
+        }
+
+        function paint(id, color) {
+            document.getElementById(id).style.backgroundColor = color;
+        }
+
+        function message(msgTxt){
+            lblMessage.innerText = msgTxt;
+        }
+    </script>
+</body>
+
+</html>

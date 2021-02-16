@@ -43,6 +43,10 @@
         <input id="btnAdd" type="button" value="Add"/>
     </div>
 
+    <div id="lbl_sum">
+
+    </div>
+
     <script>
         // Globals
         let lstEntries = [];
@@ -108,6 +112,8 @@
                 document.getElementById(ent.bar_id).title = label_text;
 
             });
+
+            lbl_sum.innerText = sum;
             // bars.innerText = `${lstEntries.map((ent => ent.entry))} => sum: ${sum}` ;
             // bars2.innerText = `${lstEntries.map((ent => ent.percentage))}` ;
         }

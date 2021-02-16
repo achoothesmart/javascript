@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Calendar</title>
+	<style>
+		#cal {
+			height: 18em;
+		}
+
+		.cal-cell {
+			width: 3em;
+			height: 2em;
+			padding-left: 0.25em;
+			padding-top: 0.25em;
+			vertical-align: top;
+			text-align: left;
+			background-color: rgb(252, 245, 216);
+			cursor: pointer;
+
+		}
+
+		.cal-head {
+			background-color: rgb(250, 232, 162);
+		}
+
+		/* .cal-cell:hover{
+			background-color: coral;
+		} */
+		.date-cell {
+			background-color: rgb(244, 250, 166);
+			/* font-size: small; */
+		}
+
+		.today-cell {
+			background-color: rgb(71, 215, 241);
+		}
+
+		/* .date-cell:hover {
+			background-color: rgb(229, 238, 98);
+		} */
+
+		.event {
+			background-color: crimson;
+			color: white;
+		}
+
+		.cal_input {
+			width: 5em;
+			padding: 0.25em;
+		}
+
+		.extra-sat-cell {
+			background-color: cadetblue;
+			color: white;
+		}
+
+		.event-list-item {
+			cursor: pointer;
+			background-color: rgb(218, 134, 24);
+			color: white;
+			padding: 0.25em;
+			border: solid;
+			border-color: white;
+			border-width: thin;
+			border-top-left-radius: 0.5em;
+			border-bottom-right-radius: 0.5em;
+		}
+
+		.centered{
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<table>
+			<tr>
+				<td><button class="cal_input" id="btnPrevMonth" onclick="loadPrevMonth()">Prev</button></td>
+				<td>
+					<select class="cal_input" id="monthSelect" onchange="changeMonth()"></select>
+					<input class="cal_input" type="number" id="yearSelect" onchange="changeMonth()" />
+					<!-- <span id="month_year"></span> -->
+				</td>
+				<td><button class="cal_input" id="btnNextMonth" onclick="loadNextMonth()">Next</button></td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div id="cal"></div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div id="all_events"></div>
+				</td>
+			</tr>
+		</table>
+
+
+	</div>
+
+	<script>
+		// Globals
+		let currMonth = 0;
+		let today = new Date();
+		let currYear = today.getFullYear();
+		let monthsLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		let daysLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+		let selectedDate = new Date();
+
+		// Events Global
+		events = [
+			{
+				id: 1,
+				desc: 'Happy birthday ATS',
+				date: '9/26/1989'
+			},
+			{
+				id: 2,
+				desc: 'Happy birthday Janvi',
+				date: '12/1/2019'
+			},
+			{
+				id: 3,
+				desc: 'test event',
+				date: '12/1/2020'
+			}
+		];
+
+		// Init
+		populateData();
+		loadMonth(new Date().getMonth());
+		loadEvents();
+
+		// Methods
+
+		function loadEvents() {
+			// let ev_html = events.map(ev => {return `${ev.date} : ${ev.desc}`}).join('</br>');
+			// all_events.innerHTML = ev_html;
+
+			all_events.innerHTML = '';
+			events.forEach(ev => {
+				let ev_div = createDOMElement({
+					tagName: 'div',
+					classList: ['event-list-item'],
+					innerText: `${ev.date} : ${ev.desc}`
+				});
+				ev_div.onclick = () => {
+					eventClicked(ev.id);
+				}
+
+				all_events.appendChild(ev_div);
+			});
+
+			let add_ev = createDOMElement({
+				tagName: 'div',
+				classList: ['event-list-item', 'centered'],
+				innerText: `+ Add Event`
+			});
+
+			add_ev.onclick = () => {
+				// addEvent();
+			}
+
+			all_events.appendChild(add_ev);
+		}
+
+		function eventClicked(ev_id) {
+			let clicked_ev = events.filter(ev => { return ev.id == ev_id })[0];
+			console.log(clicked_ev);
+			let ev_date = new Date(clicked_ev.date);
+			loadMonth(ev_date.getMonth(), ev_date.getFullYear());
+		}
+
+		function setMonthEvents() {
+			events.forEach(ev => {
+				let eventCell = document.querySelector(`[date="${ev.date}"]`);
+				if (eventCell) {
+					eventCell.classList.add('event');
+					eventCell.title = ev.desc;
+				}
+			});
+		}
+
+		function populateData() {
+			monthSelect.innerHTML = '';
+			monthsLabels.forEach((mon, index) => {
+				monthOption = createDOMElement({ tagName: 'option' });
+				monthOption.textContent = mon;
+				monthOption.value = index;
+				monthSelect.appendChild(monthOption);
+			});
+
+			yearSelect.value = today.getFullYear();
+		}
+
+		function changeMonth() {
+			loadMonth(monthSelect.value, yearSelect.value);
+		}
+
+		function loadPrevMonth() {
+			let d = getDay1(currMonth, currYear);
+			d.setMonth(d.getMonth() - 1);
+			loadMonth(d.getMonth(), d.getFullYear());
+		}
+
+		function loadNextMonth() {
+			let d = getDay1(currMonth, currYear);
+			d.setMonth(d.getMonth() + 1);
+			loadMonth(d.getMonth(), d.getFullYear());
+		}
+
+		function loadMonth(month, year) {
+			month = Number.parseInt(month);
+			year = Number.parseInt(year);
+			currMonth = month;
+			let day1 = getDay1(month, year);
+			year = day1.getFullYear();
+			currYear = year;
+			monthSelect.value = month;
+			yearSelect.value = year;
+			let nDays = getTotalDaysOfMonth(month, year);
+			let nWeeks = Math.ceil((nDays / 7) + 1);
+
+			// console.log(`Preparing calendar for ${monthsLabels[currMonth]} - ${year}, with ${nDays} days / ${nWeeks} weeks`);
+			let sat_count = 0;
+
+			// month_year.innerText = `${monthsLabels[month]} - ${year}`;
+
+			let monthTable = document.createElement('table');
+
+			let headerRow = document.createElement('tr');
+			daysLabels.forEach(day_lbl => {
+				let dayHead = createDOMElement({ tagName: 'th', innerText: day_lbl, classList: ['cal-cell', 'cal-head'] });
+				headerRow.appendChild(dayHead);
+			});
+			monthTable.appendChild(headerRow);
+
+			let date = 1;
+			let monthStarted = false;
+			let monthEnded = false;
+			for (let week = 1; week <= nWeeks; ++week) {
+
+				if (monthEnded) {
+					break;
+				}
+				let weekRow = document.createElement('tr');
+				for (let day = 0; day < 7; ++day) {
+					let dateString = `${(currMonth + 1)}/${date}/${currYear}`;
+					if (date > nDays) {
+						monthEnded = true;
+						// break;
+					}
+					if (day >= day1.getDay()) {
+						monthStarted = true;
+					}
+
+					let dayCell = createDOMElement({ tagName: 'td', classList: ['cal-cell'] });
+
+					if (monthStarted && !monthEnded) {
+						dayCell.innerText = date++;
+						dayCell.classList.add('date-cell');
+						dayCell.setAttribute('date', dateString);
+						if (dateString == today.toLocaleDateString()) {
+							dayCell.classList.add('today-cell');
+						}
+						if (day == 6) { // saturday
+							sat_count++;
+							if (sat_count > 3) {
+								dayCell.classList.add('extra-sat-cell');
+								dayCell.title = 'Working day for Gayathri';
+							}
+						}
+
+					}
+					weekRow.appendChild(dayCell);
+				}
+				monthTable.appendChild(weekRow);
+			}
+
+			cal.innerHTML = '';
+			cal.appendChild(monthTable);
+
+			setMonthEvents();
+		}
+
+		function isSameDate(date, dateString) {
+			return date.toDateString() == dateString;
+		}
+
+		function getDay1(month, year = null) {
+			let d = new Date();
+			// if (year != null) {
+			if (![null, undefined, NaN].includes(year)) {
+				d.setFullYear(year);
+			}
+			d.setDate(1);
+			d.setMonth(month);
+			return d;
+		}
+
+		function getTotalDaysOfMonth(month, year = null) {
+
+			let d = new Date();
+			// if (year != null) {
+			if (![null, undefined, NaN].includes(year)) {
+				d.setFullYear(year);
+			}
+			d.setDate(1);
+			d.setMonth(month + 1);
+			d.setDate(d.getDate() - 1);
+			return d.getDate();
+		}
+
+		function createDOMElement({ tagName = 'div', id = '', classList = [], innerText = '' }) {
+			let el = document.createElement(tagName);
+			if (id) {
+				el.id = id;
+			}
+			classList.forEach(cl => { el.classList.add(cl) });
+			el.innerText = innerText;
+			return el;
+		}
+	</script>
+</body>
+
+</html>

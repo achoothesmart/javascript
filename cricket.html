@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket</title>
+</head>
+<body>
+    <div id="score_board"></div>
+    <div id="controls">
+        <button class="btn_run">1</button>
+        <button class="btn_run">2</button>
+        <button class="btn_run">3</button>
+        <button class="btn_run">4</button>
+        <button class="btn_run">6</button>
+    </div>
+    <script>
+        let total_score = 0;
+        let wait_add_runs = false;
+        controls.addEventListener('click', (event)=>{
+            addRuns(event.target.innerText);
+        });
+
+        function addRuns(runs){
+            textToSpeech(runs);
+            let nrun = Number.parseInt(runs);
+            total_score += nrun;
+            score_board.innerText = total_score;
+            console.log('Added ' + nrun + ' runs');
+        }
+
+        document.addEventListener('keypress', (event)=>{
+            console.log(event);
+            if(event.key == '+'){
+                wait_add_runs = true;
+                console.log('..waiting to add runs');
+            }
+            else if(wait_add_runs){
+                if(['1','2','3','4','6'].includes(event.key)){
+                    addRuns(event.key);
+                    
+                }
+                wait_add_runs = false;
+            }
+        });
+
+        function textToSpeech(text){
+            var speech = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(speech);
+        }
+    </script>
+</body>
+</html>

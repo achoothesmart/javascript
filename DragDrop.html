@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <style>
+    .bulb_control_group {
+      width: 24em;
+      height: 2em;
+      padding: 10px;
+      border: 1px solid #aaaaaa;
+
+    }
+
+    .bulb_control_group:hover {
+      background-color: rgb(66, 226, 165);
+    }
+
+    .bulb_control_group.button {
+      text-align: center;
+      cursor: pointer;
+      width: 11em;
+      height: 1.2em;
+    }
+
+    .bulb_control_group.button:hover {
+      background-color: skyblue;
+    }
+
+
+
+    #tool_box {
+      padding: 10px;
+      border: 1px solid #aaaaaa;
+    }
+
+    #tool_box .bulb_control {
+      cursor: move;
+    }
+
+    .close_btn {
+      right: 0px;
+      top: 0px;
+      position: absolute;
+      cursor: pointer;
+    }
+  </style>
+
+
+
+  <script>
+
+    // globals
+    let bulb_ctrl_grp_template =
+      ` <div id="{{bulb_id}}" class="bulb_control_group" ondrop="drop(event)" ondragover="allowDrop(event)">
+          <div style="position:relative;">
+            <button class="close_btn" onclick="remove_bulb('{{bulb_id}}')">X</button>
+          </div>    
+          <span>Bulb {{bulb_no}}</span>
+        </div>`;
+
+    let nBulbs = 0;
+
+    let bulbs = [];
+
+    function addBulbCtrlGrp() {
+      let bulb_no = ++nBulbs;
+      let bulb_id = `bulb_${bulb_no}`;
+      document.getElementById('bulbs').innerHTML += bulb_ctrl_grp_template
+        .split('{{bulb_id}}').join(bulb_id)
+        .replace('{{bulb_no}}', bulb_no);
+      bulbs.push({
+        bulb_id: bulb_id,
+        button_on: false,
+        button_off: false,
+        button_slide: false
+      });
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      let drag_el = document.getElementById(data).cloneNode(true);
+      let bulb = bulbs.filter(bulb => bulb.bulb_id == ev.target.id)[0];
+
+      console.log(drag_el.id);
+      let drag_el_present = false;
+
+      drag_el_present = bulb[`${drag_el.id}`];
+      if (!bulb[`${drag_el.id}`]) {
+        bulb[`${drag_el.id}`] = true;
+      }
+
+      // drop
+      if (!drag_el_present) {
+        drag_el.setAttribute('draggable', 'false');
+        ev.target.appendChild(drag_el);
+        ev.target.innerHTML += '&nbsp';
+      }
+
+    }
+
+    function remove_bulb(bulb_id) {
+      bulbs = bulbs.filter(b => b.bulb_id != bulb_id);
+      document.getElementById(bulb_id).remove();
+    }
+
+    function generateHTML() {
+      // document.getElementById('result_html').value = JSON.stringify(bulbs, undefined, 2);
+
+      let html = '';
+      bulbs.forEach(bulb => {
+        if(bulb.button_on){
+          html += '\n' + `<a href=\\"/${bulb.bulb_id}/on\\"> <button> Turn On </button> </a>`;
+        }
+        if(bulb.button_off){
+          html += '\n' + `<a href=\\"/${bulb.bulb_id}/off\\"> <button> Turn Off </button> </a>`;
+        }
+        
+      });
+      document.getElementById('result_html').value = html;
+    }
+
+    function copyHTML() {
+      var copyText = document.getElementById("result_html");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); /* For mobile devices */
+      document.execCommand("copy");
+    }
+  </script>
+</head>
+
+<body>
+
+  <table>
+    <tr>
+      <td>
+        <div id="tool_box">
+          Controls
+          <br />
+          <br />
+          <input class="bulb_control" type="button" id="button_on" draggable="true" ondragstart="drag(event)"
+            value="Turn On">
+          <br />
+          <br />
+          <input class="bulb_control" type="button" id="button_off" class="drag_el" draggable="true"
+            ondragstart="drag(event)" value="Turn Off" />
+          <br />
+          <br />
+          <input class="bulb_control" type="range" id="button_slide" draggable="true" ondragstart="drag(event)" />
+        </div>
+
+      </td>
+
+      <td>
+        <table>
+          <tr>
+            <td colspan="2">
+              <div id="bulbs"></div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div id="btn_add_bulb" class="bulb_control_group button" onclick="addBulbCtrlGrp()">
+                <span>+ Add Bulb</span>
+              </div>
+            </td>
+
+            <td>
+              <div id="btn_generate" class="bulb_control_group button" onclick="generateHTML()">
+                <span>Generate HTML</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+      <td colspan="2">
+        <div style="position:relative;">
+          <button class="close_btn" onclick="copyHTML()">Copy</button>
+        </div>
+        <textarea id="result_html" rows="20" cols="70"></textarea>
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Project Planner</title>
+	<style>
+		body {
+			background-color: rgb(50, 50, 50);
+			color: white;
+		}
+
+		.resource,
+		.task,
+		.add-task {
+			padding: .5em;
+			background-color: darkorange;
+			border-radius: 0.5em;
+			cursor: pointer;
+		}
+
+		.add-task {
+			background-color: white;
+			color: green;
+			font-weight: bold;
+			font-size: medium;
+			text-align: center;
+			/* height: .75em; */
+			width: 3em;
+		}
+
+		.resource {
+			background-color: deeppink;
+		}
+
+		table {
+			border: solid;
+			border-width: thin;
+		}
+
+		.plan-space {
+			padding: .25em;
+			background-color: grey;
+			border-radius: 0.5em;
+
+			display: flex;
+			flex-direction: row;
+		}
+
+		.highlight {
+			background-color: yellow;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div>
+		<div> Project Start Date <input type="datetime-local" /> </div>
+		<div id="lst_tasks"></div>
+		<div id="lst_resources"></div>
+	</div>
+
+	<script>
+
+		// Globals
+
+		let tasks = [
+			{
+				id: 1,
+				name: 'INC001',
+				description: 'Issue with lauch screen',
+				effort: 40
+			},
+			{
+				id: 2,
+				name: 'INC002',
+				description: 'Filter not working',
+				effort: 30
+			}
+		];
+
+		let resources = [
+			{
+				id: 1,
+				name: 'Prasanna',
+				bandwidth: {
+					total: 80,
+					available: 80
+				},
+				schedule: []
+			},
+			{
+				id: 2,
+				name: 'Kaushik',
+				bandwidth: {
+					total: 40,
+					available: 40
+				},
+				schedule: []
+			}
+		];
+
+		// Templates
+		let tmp_add_task = `<div class="add-task">+</div>`;
+
+		loadTasks();
+		loadResources();
+
+
+		function loadTasks() {
+			let tbl_task = document.createElement('table');
+
+			tasks.forEach(task => {
+				let tr = document.createElement('tr');
+				let td1 = document.createElement('td');
+				let td2 = document.createElement('td');
+				let td3 = document.createElement('td');
+
+				td1.innerHTML = `<div id="task_${task.id}" class="task" draggable="true" canCopy="true" ondragstart="dragStart(event)"> ${task.name} </div>`;
+				td2.innerHTML = `<div>${task.effort}</div>`;
+				td3.innerHTML = `<div>${task.description}</div>`;
+
+
+				tr.appendChild(td1);
+				tr.appendChild(td2);
+				tr.appendChild(td3);
+
+				tbl_task.appendChild(tr);
+			});
+
+			lst_tasks.innerHTML = '';
+			lst_tasks.appendChild(tbl_task);
+		}
+
+		function loadResources() {
+			let tbl_res = document.createElement('table');
+
+			resources.forEach(res => {
+				let tr = document.createElement('tr');
+				let td1 = document.createElement('td');
+				let td2 = document.createElement('td');
+				let td3 = document.createElement('td');
+
+				td1.innerHTML = `<div id="res_${res.id}" class="resource"> ${res.name} </div>`;
+				td2.innerHTML = `<div>${res.bandwidth.available}/${res.bandwidth.total}</div>`;
+				td3.innerHTML = `<div id="drop_res_${res.id}" class="plan-space drop-space drop_res_${res.id}" ondragover="dragOver(event)" ><div class="add-task drop-space drop_res_${res.id}">+</div></div>`;
+
+				tr.appendChild(td1);
+				tr.appendChild(td2);
+				tr.appendChild(td3);
+
+				tbl_res.appendChild(tr);
+
+
+			});
+
+			lst_resources.innerHTML = '';
+			lst_resources.appendChild(tbl_res);
+
+			document.querySelectorAll('.drop-space').forEach((drop_space) => {
+				drop_space.addEventListener('drop', (event) => {
+					drop(event);
+				});
+			});
+		}
+
+		function dragStart(event) {
+			event.dataTransfer.setData('drag_id', event.target.id);
+		}
+
+		function dragOver(event) {
+			event.preventDefault();
+
+			// console.log(event.target.classList);
+		}
+
+		function drop(event) {
+			event.stopPropagation();
+			event.preventDefault();
+
+			// console.log(Array.from(event.target.classList).filter(c => c.search('drop_res_') >= 0));
+			let drop_res_id = Array.from(event.target.classList).filter(c => c.search('drop_res_') >= 0)[0];
+
+			if (drop_res_id) {
+				let drag_task_id = event.dataTransfer.getData('drag_id');
+				let drag_task_item = document.getElementById(drag_task_id);
+				let can_copy = drag_task_item.getAttribute('canCopy');
+				console.log('canCopy : ' + can_copy);
+				let planned_task = null;
+				if(can_copy == 'true'){
+					planned_task = drag_task_item.cloneNode(true);
+					planned_task.setAttribute('canCopy', false);
+					planned_task.id = 'planned_'+drag_task_id;
+					console.log('cloning..');
+				}
+				else{
+					planned_task = drag_task_item;
+				}
+				
+				//event.target.appendChild(drag_clone);
+
+				// document.getElementById(drop_res_id).appendChild(drag_clone);
+				let drop_res = document.getElementById(drop_res_id);
+				let add_task = drop_res.lastChild;
+				// console.log(drop_res.childNodes);
+				drop_res.lastChild.remove();
+				drop_res.appendChild(planned_task);
+				drop_res.appendChild(add_task);
+
+				// drop_res.insertBefore(planned_task, drop_res.childNodes[0]);
+			}
+
+
+
+		}
+
+
+	</script>
+
+</body>
+
+</html>

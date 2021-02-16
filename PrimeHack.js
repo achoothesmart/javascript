@@ -32,3 +32,11 @@ document.querySelectorAll('._2hMXwV').forEach(movie => {
 movie_list.filter(movie => {
     return movie.imdb >= 8.5;
 });
+
+
+// 
+
+let vid2 = document.querySelectorAll('video')[1];
+vid2.addEventListener('play', ()=>{
+    vid2.currentTime = vid2.duration; vid2.play();
+});
