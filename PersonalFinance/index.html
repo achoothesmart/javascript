@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinEntry</title>
+    <link rel="stylesheet" href="./styles/style.css"/>
+    
+</head>
+<body>
+    <table>
+        <tr>
+            <td><h2>Balance Sheet</h2></td>
+            <td> <button class="button" onclick="loadImportDialog()">Import</button> </td>
+            <td> <button class="button" onclick="loadEntryDialog()">Add Entry</button> </td>
+            <td> <button id="btnDelete" class="button" onclick="deleteSelected()">Delete Selected</button> </td>
+        </tr>
+    </table>
+
+    <div id="all_transactions"></div>
+
+
+    <!-- Dialogs -->
+    <div id="entry-dialog" class="dialog">
+        <h3>Add Entry</h3>
+        <input type="text" id="particular" placeholder="Particular"/>
+        <br/>
+        <input type="number" id="amount" placeholder="Amount"/>
+        <br/>
+        <input type="radio" id="entry_type_debit" name="entry_type" value="debit"/> Debit
+        <input type="radio" id="entry_type_credit" name="entry_type" value="credit"/> Credit
+        <br/>
+        
+        <input type="button" value="Cancel" onclick="closeEntryDialog()"/>
+        <input type="button" value="Add Entry" onclick="addTrans()"/>
+    </div>
+
+    <div id="import-dialog" class="dialog">
+        <h3>Bulg Import</h3>
+        <div>Format: <i> [Particular] _tab_ [debit] _tab_ [credit] </i> </div>
+        
+        <div>
+            <textarea id="import" rows="10" cols="50"></textarea>
+        </div>
+        <!-- <div class="hint">Credit Transaction Example: <i>Salary c 54000</i></div>
+        <div class="hint">Credit Transaction Example: <i>Rent d 10000</i></div>
+        <div class="hint">Debit value d is default. All transactions without mentioning 'd' will be treated as bebit</div> -->
+        <br/>
+        <div class="hint">
+            <input id="chkOverwriteImport" type="checkbox" checked/> Overwrite Import 
+        </div>
+        <input type="button" value="Cancel" onclick="closeImportDialog()"/>
+        <input type="button" value="Import" onclick="importTrans()"/>
+        
+    </div>
+
+
+    <!-- <table>
+        <tr>
+            <td>
+                
+            </td>
+
+            <td class="non-print">
+                
+
+                
+            </td>
+
+            <td class="non-print">
+                
+            </td>
+        </tr>
+    </table> -->
+    
+    
+
+    
+    
+    <script src="./scripts/script.js"></script>
+</body>
+</html>

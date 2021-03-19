@@ -1,0 +1,127 @@
+body{
+    background-color: rgb(50, 50, 50);
+    color: white;
+    /* font-family:'Courier New', Courier, monospace; */
+}
+
+#all_transactions{
+    text-align: right;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* #all_transactions table{
+    width: 100%;
+} */
+
+#all_transactions th{
+    padding: 0.125em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    background-color: white;
+    color: black;
+}
+
+#all_transactions td{
+    padding: 0.125em;
+}
+
+#all_transactions tr:hover{
+    background-color: rgb(82, 82, 82);
+}
+
+#all_transactions .id-col{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    
+}
+
+/* #all_transactions .chk{
+    opacity: 0;
+} */
+
+
+
+.dialog input{
+    padding: .5em;
+    margin: .25em;
+    cursor: pointer;
+}
+
+.total-row{
+    font-weight: bold;
+    background-color: rgb(70, 70, 100);
+}
+
+.hint{
+    font-size: smaller;
+}
+
+.hidden{
+    display: none;
+}
+
+.dialog{
+    opacity: 0;
+    position: fixed;
+    width: 0%;
+    height: 100%;
+    z-index: 1;
+    overflow-x: hidden;
+    top: 0;
+    left: 0;
+    background-color: rgb(70, 70, 100);
+    text-align: center;
+}
+
+.button{
+    padding: 0.5em;
+    cursor: pointer;
+    background-color: white;
+}
+
+/* Animations */
+
+@-webkit-keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+.fadeIn {
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    width: 100%;
+
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+}
+
+@-webkit-keyframes fadeOut {
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+@keyframes fadeOut {
+    0% {opacity: 1; width: 100%;}
+    99% { width: 100%; }
+    100% {opacity: 0; width: 0%;}
+}
+
+.fadeOut {
+    -webkit-animation-duration: 0.25s;
+    animation-duration: 0.25s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    width: 100%;
+
+    -webkit-animation-name: fadeOut;
+    animation-name: fadeOut;
+}

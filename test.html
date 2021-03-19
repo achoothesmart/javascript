@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+ 
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Test</title>
+
+</head>
+
+ 
+
+<body>
+
+    <table>
+
+        <tr>
+
+            <td>
+
+                <div>Input</div>
+
+                <textarea id="input" rows="21" cols="120"></textarea>
+
+            </td>
+
+            <td>
+
+                <div>keywords to CAPITALIZE</div>
+
+                <div><textarea id="keys" rows="7" cols="50"></textarea> </div>
+
+                <div>Delimeters for defining New Lines</div>
+
+                <div><textarea id="delimeters" rows="7" cols="50"></textarea> </div>
+
+                <div>Delimeter to Join Lines</div>
+
+                <div><input id="delimeter"/></div>
+
+               
+
+            </td>
+
+        </tr>
+
+    </table>
+
+ 
+
+ 
+
+    <input type="button" id="btnFindTables" value="Find Table Names" />
+
+    <input type="text" id="txtTableName" placeholder="table name" value="tbl" />
+
+    <input type="button" id="btnPrepInsQ" value="Prepare Insert Query" />
+
+    <input type="button" id="btnRemoveEL" value="Remove Empty Lines" />
+
+    <input type="button" id="btnCapitalize" value="Capitalize" />
+
+    <input type="button" id="btnSpliLines" value="Split into Lines" />
+
+    <input type="button" id="btnJoinLines" value="Join Lines" />
+
+   
+
+    <br/>
+
+    <input type="button" id="btnGetFileNames" value="Get FileNames" />
+
+ 
+
+    <br />
+
+ 
+
+    <textarea id="result" rows="20" cols="120"></textarea> <br />
+
+    <input type="button" id="btnExecuteQuery" value="Execute Insert Query" /> <br />
+
+    <div>
+
+        <table id="table" border="1">
+
+        </table>
+
+    </div>
+
+ 
+
+    <div>
+
+        <table id="tbl" border="1">
+
+        </table>
+
+    </div>
+
+ 
+
+    <script>
+
+        // Globals
+
+ 
+
+        var g_table_data = {};
+
+ 
+
+        g_table_data.rows = [];
+
+        g_table_data.colNames = [];
+
+ 
+
+        // Event Listeners
+
+ 
+
+        document.getElementById('btnFindTables').addEventListener('click', () => {
+
+            findRealTables();
+
+        });
+
+ 
+
+       document.getElementById('btnPrepInsQ').addEventListener('click', () => {
+
+            prepareInsertQuery();
+
+        });
+
+ 
+
+        document.getElementById('btnExecuteQuery').addEventListener('click', () => {
+
+            executeQuery(document.getElementById('result').value);
+
+        });
+
+ 
+
+        document.getElementById('btnRemoveEL').addEventListener('click', () => {
+
+            removeEmptyLines('input', 'result');
+
+        });
+
+ 
+
+        btnCapitalize.addEventListener('click', () => {
+
+            capitalize('input', 'keys', 'result');
+
+        });
+
+ 
+
+ 
+
+        btnSpliLines.addEventListener('click',()=>{
+
+            splitIntoLines('input','delimeters','result');
+
+        });
+
+ 
+
+        btnJoinLines.addEventListener('click',()=>{
+
+            joinLines('input', 'result');
+
+        });
+
+ 
+
+ 
+
+        btnGetFileNames.addEventListener('click',()=>{
+
+            getFileNames('input', 'result');
+
+        });
+
+ 
+
+        // Methods
+
+ 
+
+        function splitIntoLines(input_id, delimeters_id, result_id) {
+
+            let input = document.getElementById(input_id);
+
+            let delimeters = document.getElementById(delimeters_id);
+
+            let result = document.getElementById(result_id);
+
+ 
+
+            delimeters = delimeters.value.split('\n');
+
+            let txt = input.value;
+
+            delimeters.forEach((delimeter) => {
+
+                //let re = new RegExp(delimeter, 'g');
+
+                // txt = txt.split(delimeter).join('\n'+delimeter);
+                txt = txt.split(delimeter).join(delimeter+'\n');
+
+            });
+
+ 
+
+            result.value = txt;
+
+        }
+
+ 
+
+        function joinLines(input_id, result_id) {
+
+            let input = document.getElementById(input_id);
+
+            let result = document.getElementById(result_id);
+
+            result.value = input.value.split('\n').join(delimeter.value);
+
+        }
+
+ 
+
+       
+
+        function getFileNames(input_id, result_id) {
+
+            let input = document.getElementById(input_id);
+
+            let result = document.getElementById(result_id);
+
+            let res = '';
+
+            input.value.split('\n').forEach(line => {
+
+                res += line.split('\\')[line.split('\\').length-1]+'\n';
+
+            });
+
+            result.value = res;
+
+        }
+
+ 
+
+        function capitalize(input_id, keys_id, result_id) {
+
+            let input = document.getElementById(input_id);
+
+            let keys = document.getElementById(keys_id);
+
+            let result = document.getElementById(result_id);
+
+ 
+
+            keys = keys.value.split('\n');
+
+            let txt = input.value;
+
+            keys.forEach((key) => {
+
+                let re = new RegExp(key, 'g');
+
+                txt = txt.replace(re, key.toUpperCase());
+
+            });
+
+ 
+
+            result.value = txt;
+
+ 
+
+            //console.log(keys);
+
+        }
+
+ 
+
+        function removeEmptyLines(input_id, result_id) {
+
+            let txt1 = document.getElementById(input_id);
+
+            let txt2 = document.getElementById(result_id);
+
+ 
+
+            let arr = txt1.value.split('\n');
+
+            let res = [];
+
+ 
+
+            arr.forEach(line => {
+
+                if (line.trim() != '') {
+
+                    res.push(line);
+
+               }
+
+            });
+
+            txt2.value = res.join('\n');
+
+        }
+
+ 
+
+        function getValues() {
+
+            let txtval = document.getElementById('input').value;
+
+            let arr = txtval.split('\n');
+
+            let list = '';
+
+            arr.forEach(line => {
+
+                let str = line.substr(line.indexOf('column')).split('"')[1];
+
+                if (str != undefined) {
+
+                    list += str + '\n';
+
+                }
+
+            });
+
+            document.getElementById('result').value = list;
+
+            //console.log(arr);
+
+        }
+
+ 
+
+        function splitLinesBy(delimeter) {
+
+            let txtval = document.getElementById('input').value;
+
+            let arr = txtval.split('\n');
+
+            let list = '';
+
+            arr.forEach(line => {
+
+                let res = line.split(delimeter);
+
+                let str = res[0] + "\t" + res[1];
+
+                if (str != undefined) {
+
+                    list += str + '\n';
+
+                }
+
+           });
+
+            document.getElementById('result').value = list;
+
+        }
+
+ 
+
+        function findRealTables() {
+
+            let txtval = document.getElementById('input').value;
+
+            let arr = txtval.split('\n');
+
+            let list = '';
+
+            let foundTable = false;
+
+ 
+
+            arr.forEach(line => {
+
+                let words = line.split('   ').join(' ').split(' ').filter((el) => { return el });
+
+                words.forEach(word => {
+
+                    if (foundTable) {
+
+                        if (word.indexOf('@') != 0) { // eliminating temp tables stating with @
+
+                            list += word + '\n';
+
+                        }
+
+                        if (word != ' ' && word != '\t') {
+
+                            foundTable = false;
+
+                        }
+
+                    }
+
+                    if (word.toLowerCase() == 'into' || word.toLowerCase() == 'from') {
+
+                        foundTable = true;
+
+                    }
+
+                });
+
+            });
+
+            document.getElementById('result').innerHTML = list;
+
+        }
+
+ 
+
+        function prepareInsertQuery() {
+
+            clearTable();
+
+            let txtval = document.getElementById('input').value;
+
+            let arr = txtval.split('\n');
+
+            let query = 'insert into #table_name (#cols) values(#vals)';
+
+            let result = '';
+
+ 
+
+            if (arr.length > 0) {
+
+                // header cols
+
+                query = query.replace('#cols', arr[0].split('          ').join(', '));
+
+                query = query.replace('#table_name', txtTableName.value);
+
+                txtTableName
+
+                insertRow(arr[0].split(' '));
+
+ 
+
+                console.log(arr.length);
+
+                // rows
+
+                for (let i = 1; i < arr.length; ++i) {
+
+                    //console.log(i);
+
+                    if (arr[i].trim() != '') {
+
+                        let vals = arr[i].split('            ');
+
+                        vals = process(vals);
+
+                        result += query.replace('#vals', vals.join(',\t')) + '\n';
+
+                        insertRow(vals);
+
+                        //console.log(i);
+
+                    }
+
+ 
+
+                }
+
+                //console.log(arr.length);
+
+            }
+
+            document.getElementById('result').value = result;
+
+        }
+
+ 
+
+        function executeQuery(query) {
+
+            let arr = query.split('\n');
+
+ 
+
+            if (arr.length > 0) {
+
+                for (let i = 0; i < arr.length; ++i) {
+
+                    let q = arr[i];
+
+ 
+
+                    if (q.trim() == '') { return; }
+
+ 
+
+                    let q_type = q.split(' ')[0];
+
+ 
+
+                    if (q_type.toLowerCase() == 'insert') {
+
+                        console.log('Executing insert query');
+
+                        let cols = convertBracketsToArray(q);
+
+                        let rem = q.substr(q.indexOf(')') + 1);
+
+                        let vals = convertBracketsToArray(rem);
+
+ 
+
+                        //let result = {cols: cols, vals: vals};
+
+                        //console.log(result);
+
+ 
+
+                        // set cols to global table data
+
+                        if (g_table_data.colNames.length == 0) {
+
+                            g_table_data.colNames = cols;
+
+                        }
+
+ 
+
+                        // add rows to global table data
+
+                        if (cols.length == vals.length) {
+
+                            let row = {};
+
+                            for (let i = 0; i < cols.length; ++i) {
+
+                                row[cols[i]] = vals[i];
+
+                            }
+
+                            g_table_data.rows.push(row);
+
+                        }
+
+                        else {
+
+                            console.error('Number of columns and values are different!');
+
+                        }
+
+ 
+
+                    }
+
+                    else {
+
+                        console.log('Only insert query can be processed by now. Processing other types of queries are yet to develop');
+
+                    }
+
+                }
+
+            }
+
+        }
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+        // Sub Methods
+
+ 
+
+        function convertBracketsToArray(str) {
+
+            return (str.substr(str.indexOf('(') + 1, str.indexOf(')') - str.indexOf('(') - 1)).split(',').map((c) => { return c.trim() });
+
+        }
+
+ 
+
+        function process(vals) {
+
+            for (let i = 0; i < vals.length; ++i) {
+
+                if (!isNumber(vals[i]) && !isNull(vals[i])) {
+
+                    vals[i] = '\'' + vals[i] + '\'';
+
+                }
+
+            }
+
+            return vals;
+
+        }
+
+ 
+
+        function isNumber(str) {
+
+            return (str.length == parseInt(str).toString().length) && (parseInt(str).toString() != 'NaN');
+
+        }
+
+ 
+
+        function isNull(str) {
+
+            return str == 'NULL';
+
+        }
+
+ 
+
+ 
+
+        // Table methods
+
+ 
+
+        function clearTable() {
+
+            document.getElementById('table').innerHTML = '';
+
+        }
+
+ 
+
+        function insertRow(arr) {
+
+            let row = '<tr> <td>' + arr.join('</td> <td>') + '</td> </tr>';
+
+            document.getElementById('table').innerHTML = document.getElementById('table').innerHTML + row;
+
+        }
+
+    </script>
+
+</body>
+
+ 
+
+</html>
+

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+</head>
+<body>
+    <div id="clock"></div>
+
+    <script>
+        setCurrentTime(); // to set time at page load / refresh
+
+        window.setInterval(()=>{
+            setCurrentTime(); // to set time in specified intervals
+        }, 1000);
+
+        function setCurrentTime(){
+            document.getElementById('clock').innerHTML = `${new Date().toLocaleTimeString()}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.shadow-text{
+    color: brown;
+    text-shadow: 1px 1px orange ;
+    padding-left: 0px;
+    /* transition: text-shadow 2s; */
+}
+.shadow-text:hover{
+    text-shadow: 2px 2px orange ;
+    transition: text-shadow;
+}

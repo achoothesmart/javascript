@@ -1,0 +1,139 @@
+body{
+  font-family: sans-serif;
+}
+
+html, .fullscreen {
+	display: flex;
+	overflow-x: hidden;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+
+/* Center the content in the browser window */
+/* .container{
+	margin: auto;
+	
+} */
+
+
+
+.add-note{
+	background-color: rgb(54, 116, 231);
+/*	height: 3em;*/
+	width: 100%;
+	bottom: 0px;
+	position: absolute;
+	/* display: flex; */
+	font-size: 20px;
+	font-weight: bold;
+	color:white;
+	text-align: center;
+	padding-top: 1em;	
+	padding-bottom: 1em;
+
+}
+
+.all-notes{
+	/* padding: 0.5em; */
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.note{
+	display: flex;
+	/* justify-content: space-between; */
+	padding: 0.5em ;
+	font-size: 1.25em;
+	width: 100%;
+	/* background-color: aqua; */
+
+	/* border-style: solid;
+	border-width: 0.25em;
+	border-color: white; */
+}
+
+.note.selected{
+	background-color: rgb(54, 116, 231);
+	color: white;
+}
+
+.title {
+	font-weight: bold;
+	padding-right: 1em;
+}
+
+.hidden{
+	display: none;
+}
+
+.popup-screen{
+	position:absolute;
+	margin: 0;
+	padding: 5%; 
+	height: 94%;
+	width: 100%;
+	background-color: rgba(54, 116, 231, 0.5);
+	text-align: center;
+	
+}
+
+.popup{
+	position: absolute;
+	text-align: center;
+	width: 70%;
+	height: 80%;
+	padding: 5%;
+	background-color: white;
+	margin: auto;
+}
+
+.input{
+	padding: 0.25em;
+	border-color: rgba(54, 116, 231, 0.5);
+	border-style: solid;
+	border-width: 0.25em;
+	border-radius: 0.25em;
+	width: 90%;
+	font-size: 17px;
+}
+
+.txt{
+	/* position: absolute; */
+	left:1em;
+	height: 80%
+}
+
+.txt .input{
+	height: 90%;
+}
+
+.input-box{
+	padding: 0.25em;
+}
+
+.controls{
+	display:	flex;
+	flex-direction: row;
+	justify-content: 	space-around;
+}
+
+.btn{
+	padding: 0.5em;
+	border-color: rgba(54, 116, 231, 1);	
+	background-color: rgba(54, 116, 231, 1);
+	color: white;
+	border-style: solid;
+	border-width: 0.25em;
+	border-radius: 0.25em;
+	width: 30%;
+}
+
+.popup-title{
+	color: rgba(54, 116, 231, 1);
+}
